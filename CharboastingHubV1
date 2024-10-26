@@ -1,1902 +1,882 @@
 local player = game.Players.LocalPlayer
-local OrionLib = local UserInputService = game:GetService("UserInputService")
-local TweenService = game:GetService("TweenService")
-local RunService = game:GetService("RunService")
-local LocalPlayer = game:GetService("Players").LocalPlayer
-local Mouse = LocalPlayer:GetMouse()
-local HttpService = game:GetService("HttpService")
+local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
+local Window = OrionLib:MakeWindow({Name = "Charboasting Hub V1", HidePremium = false, SaveConfig = true, ConfigFolder = "OrionTest"})
+
+-- Tabs for Rizz
+local TabRizzEnglish = Window:MakeTab({ Name = "Rizz (English) (USA/UK)", Icon = "rbxassetid://4483345998", PremiumOnly = false })
+local TabRizzSpanish = Window:MakeTab({ Name = "Rizz (Español) (Spain)", Icon = "rbxassetid://4483345998", PremiumOnly = false })
+local TabRizzFrench = Window:MakeTab({ Name = "Rizz (Français) (France)", Icon = "rbxassetid://4483345998", PremiumOnly = false })
+local TabRizzGerman = Window:MakeTab({ Name = "Rizz (Deutsch) (Germany)", Icon = "rbxassetid://4483345998", PremiumOnly = false })
+local TabRizzPortuguese = Window:MakeTab({ Name = "Rizz (Português) (Portugal/Brazil)", Icon = "rbxassetid://4483345998", PremiumOnly = false })
+local TabRizzJapanese = Window:MakeTab({ Name = "Rizz (日本語) (Japan)", Icon = "rbxassetid://4483345998", PremiumOnly = false })
+local TabRizzChinese = Window:MakeTab({ Name = "Rizz (中文) (China)", Icon = "rbxassetid://4483345998", PremiumOnly = false })
+local TabRizzArabic = Window:MakeTab({ Name = "Rizz (العربية) (Arab World)", Icon = "rbxassetid://4483345998", PremiumOnly = false })
+local TabRizzRussian = Window:MakeTab({ Name = "Rizz (Русский) (Russia)", Icon = "rbxassetid://4483345998", PremiumOnly = false })
+local TabRizzHindi = Window:MakeTab({ Name = "Rizz (हिन्दी) (India)", Icon = "rbxassetid://4483345998", PremiumOnly = false })
+
+-- Tabs for Roasts
+local TabRoastEnglish = Window:MakeTab({ Name = "Roast (English) (USA/UK)", Icon = "rbxassetid://4483345998", PremiumOnly = false })
+local TabRoastSpanish = Window:MakeTab({ Name = "Roast (Español) (Spain)", Icon = "rbxassetid://4483345998", PremiumOnly = false })
+local TabRoastFrench = Window:MakeTab({ Name = "Roast (Français) (France)", Icon = "rbxassetid://4483345998", PremiumOnly = false })
+local TabRoastGerman = Window:MakeTab({ Name = "Roast (Deutsch) (Germany)", Icon = "rbxassetid://4483345998", PremiumOnly = false })
+local TabRoastPortuguese = Window:MakeTab({ Name = "Roast (Português) (Portugal/Brazil)", Icon = "rbxassetid://4483345998", PremiumOnly = false })
+local TabRoastJapanese = Window:MakeTab({ Name = "Roast (日本語) (Japan)", Icon = "rbxassetid://4483345998", PremiumOnly = false })
+local TabRoastChinese = Window:MakeTab({ Name = "Roast (中文) (China)", Icon = "rbxassetid://4483345998", PremiumOnly = false })
+local TabRoastArabic = Window:MakeTab({ Name = "Roast (العربية) (Arab World)", Icon = "rbxassetid://4483345998", PremiumOnly = false })
+local TabRoastRussian = Window:MakeTab({ Name = "Roast (Русский) (Russia)", Icon = "rbxassetid://4483345998", PremiumOnly = false })
+local TabRoastHindi = Window:MakeTab({ Name = "Roast (हिन्दी) (India)", Icon = "rbxassetid://4483345998", PremiumOnly = false })
 
-local OrionLib = {
-	Elements = {},
-	ThemeObjects = {},
-	Connections = {},
-	Flags = {},
-	Themes = {
-		Default = {
-			Main = Color3.fromRGB(25, 25, 25),
-			Second = Color3.fromRGB(32, 32, 32),
-			Stroke = Color3.fromRGB(60, 60, 60),
-			Divider = Color3.fromRGB(60, 60, 60),
-			Text = Color3.fromRGB(240, 240, 240),
-			TextDark = Color3.fromRGB(150, 150, 150)
-		}
-	},
-	SelectedTheme = "Default",
-	Folder = nil,
-	SaveCfg = false
-}
-
---Feather Icons https://github.com/evoincorp/lucideblox/tree/master/src/modules/util - Created by 7kayoh
-local Icons = {}
-
-local Success, Response = pcall(function()
-	Icons = HttpService:JSONDecode(game:HttpGetAsync("https://raw.githubusercontent.com/evoincorp/lucideblox/master/src/modules/util/icons.json")).icons
-end)
-
-if not Success then
-	warn("\nCharboasting Hub - Failed to load Feather Icons. Error code: " .. Response .. "\n")
-end	
-
-local function GetIcon(IconName)
-	if Icons[IconName] ~= nil then
-		return Icons[IconName]
-	else
-		return nil
-	end
-end   
-
-local Orion = Instance.new("ScreenGui")
-Orion.Name = "Charboasting Hub"
-if syn then
-	syn.protect_gui(Orion)
-	Orion.Parent = game.CoreGui
-else
-	Orion.Parent = gethui() or game.CoreGui
-end
-
-if gethui then
-	for _, Interface in ipairs(gethui():GetChildren()) do
-		if Interface.Name == Orion.Name and Interface ~= Orion then
-			Interface:Destroy()
-		end
-	end
-else
-	for _, Interface in ipairs(game.CoreGui:GetChildren()) do
-		if Interface.Name == Orion.Name and Interface ~= Orion then
-			Interface:Destroy()
-		end
-	end
-end
-
-function OrionLib:IsRunning()
-	if gethui then
-		return Orion.Parent == gethui()
-	else
-		return Orion.Parent == game:GetService("CoreGui")
-	end
-
-end
-
-local function AddConnection(Signal, Function)
-	if (not OrionLib:IsRunning()) then
-		return
-	end
-	local SignalConnect = Signal:Connect(Function)
-	table.insert(OrionLib.Connections, SignalConnect)
-	return SignalConnect
-end
-
-task.spawn(function()
-	while (OrionLib:IsRunning()) do
-		wait()
-	end
-
-	for _, Connection in next, OrionLib.Connections do
-		Connection:Disconnect()
-	end
-end)
-
-local function AddDraggingFunctionality(DragPoint, Main)
-	pcall(function()
-		local Dragging, DragInput, MousePos, FramePos = false
-		DragPoint.InputBegan:Connect(function(Input)
-			if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-				Dragging = true
-				MousePos = Input.Position
-				FramePos = Main.Position
-
-				Input.Changed:Connect(function()
-					if Input.UserInputState == Enum.UserInputState.End then
-						Dragging = false
-					end
-				end)
-			end
-		end)
-		DragPoint.InputChanged:Connect(function(Input)
-			if Input.UserInputType == Enum.UserInputType.MouseMovement then
-				DragInput = Input
-			end
-		end)
-		UserInputService.InputChanged:Connect(function(Input)
-			if Input == DragInput and Dragging then
-				local Delta = Input.Position - MousePos
-				TweenService:Create(Main, TweenInfo.new(0.45, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Position  = UDim2.new(FramePos.X.Scale,FramePos.X.Offset + Delta.X, FramePos.Y.Scale, FramePos.Y.Offset + Delta.Y)}):Play()
-			end
-		end)
-	end)
-end   
-
-local function Create(Name, Properties, Children)
-	local Object = Instance.new(Name)
-	for i, v in next, Properties or {} do
-		Object[i] = v
-	end
-	for i, v in next, Children or {} do
-		v.Parent = Object
-	end
-	return Object
-end
-
-local function CreateElement(ElementName, ElementFunction)
-	OrionLib.Elements[ElementName] = function(...)
-		return ElementFunction(...)
-	end
-end
-
-local function MakeElement(ElementName, ...)
-	local NewElement = OrionLib.Elements[ElementName](...)
-	return NewElement
-end
-
-local function SetProps(Element, Props)
-	table.foreach(Props, function(Property, Value)
-		Element[Property] = Value
-	end)
-	return Element
-end
-
-local function SetChildren(Element, Children)
-	table.foreach(Children, function(_, Child)
-		Child.Parent = Element
-	end)
-	return Element
-end
-
-local function Round(Number, Factor)
-	local Result = math.floor(Number/Factor + (math.sign(Number) * 0.5)) * Factor
-	if Result < 0 then Result = Result + Factor end
-	return Result
-end
-
-local function ReturnProperty(Object)
-	if Object:IsA("Frame") or Object:IsA("TextButton") then
-		return "BackgroundColor3"
-	end 
-	if Object:IsA("ScrollingFrame") then
-		return "ScrollBarImageColor3"
-	end 
-	if Object:IsA("UIStroke") then
-		return "Color"
-	end 
-	if Object:IsA("TextLabel") or Object:IsA("TextBox") then
-		return "TextColor3"
-	end   
-	if Object:IsA("ImageLabel") or Object:IsA("ImageButton") then
-		return "ImageColor3"
-	end   
-end
-
-local function AddThemeObject(Object, Type)
-	if not OrionLib.ThemeObjects[Type] then
-		OrionLib.ThemeObjects[Type] = {}
-	end    
-	table.insert(OrionLib.ThemeObjects[Type], Object)
-	Object[ReturnProperty(Object)] = OrionLib.Themes[OrionLib.SelectedTheme][Type]
-	return Object
-end    
-
-local function SetTheme()
-	for Name, Type in pairs(OrionLib.ThemeObjects) do
-		for _, Object in pairs(Type) do
-			Object[ReturnProperty(Object)] = OrionLib.Themes[OrionLib.SelectedTheme][Name]
-		end    
-	end    
-end
-
-local function PackColor(Color)
-	return {R = Color.R * 255, G = Color.G * 255, B = Color.B * 255}
-end    
-
-local function UnpackColor(Color)
-	return Color3.fromRGB(Color.R, Color.G, Color.B)
-end
-
-local function LoadCfg(Config)
-	local Data = HttpService:JSONDecode(Config)
-	table.foreach(Data, function(a,b)
-		if OrionLib.Flags[a] then
-			spawn(function() 
-				if OrionLib.Flags[a].Type == "Colorpicker" then
-					OrionLib.Flags[a]:Set(UnpackColor(b))
-				else
-					OrionLib.Flags[a]:Set(b)
-				end    
-			end)
-		else
-			warn("Orion Library Config Loader - Could not find ", a ,b)
-		end
-	end)
-end
-
-local function SaveCfg(Name)
-	local Data = {}
-	for i,v in pairs(OrionLib.Flags) do
-		if v.Save then
-			if v.Type == "Colorpicker" then
-				Data[i] = PackColor(v.Value)
-			else
-				Data[i] = v.Value
-			end
-		end	
-	end
-	writefile(OrionLib.Folder .. "/" .. Name .. ".txt", tostring(HttpService:JSONEncode(Data)))
-end
-
-local WhitelistedMouse = {Enum.UserInputType.MouseButton1, Enum.UserInputType.MouseButton2,Enum.UserInputType.MouseButton3}
-local BlacklistedKeys = {Enum.KeyCode.Unknown,Enum.KeyCode.W,Enum.KeyCode.A,Enum.KeyCode.S,Enum.KeyCode.D,Enum.KeyCode.Up,Enum.KeyCode.Left,Enum.KeyCode.Down,Enum.KeyCode.Right,Enum.KeyCode.Slash,Enum.KeyCode.Tab,Enum.KeyCode.Backspace,Enum.KeyCode.Escape}
-
-local function CheckKey(Table, Key)
-	for _, v in next, Table do
-		if v == Key then
-			return true
-		end
-	end
-end
-
-CreateElement("Corner", function(Scale, Offset)
-	local Corner = Create("UICorner", {
-		CornerRadius = UDim.new(Scale or 0, Offset or 10)
-	})
-	return Corner
-end)
-
-CreateElement("Stroke", function(Color, Thickness)
-	local Stroke = Create("UIStroke", {
-		Color = Color or Color3.fromRGB(255, 255, 255),
-		Thickness = Thickness or 1
-	})
-	return Stroke
-end)
-
-CreateElement("List", function(Scale, Offset)
-	local List = Create("UIListLayout", {
-		SortOrder = Enum.SortOrder.LayoutOrder,
-		Padding = UDim.new(Scale or 0, Offset or 0)
-	})
-	return List
-end)
-
-CreateElement("Padding", function(Bottom, Left, Right, Top)
-	local Padding = Create("UIPadding", {
-		PaddingBottom = UDim.new(0, Bottom or 4),
-		PaddingLeft = UDim.new(0, Left or 4),
-		PaddingRight = UDim.new(0, Right or 4),
-		PaddingTop = UDim.new(0, Top or 4)
-	})
-	return Padding
-end)
-
-CreateElement("TFrame", function()
-	local TFrame = Create("Frame", {
-		BackgroundTransparency = 1
-	})
-	return TFrame
-end)
-
-CreateElement("Frame", function(Color)
-	local Frame = Create("Frame", {
-		BackgroundColor3 = Color or Color3.fromRGB(255, 255, 255),
-		BorderSizePixel = 0
-	})
-	return Frame
-end)
-
-CreateElement("RoundFrame", function(Color, Scale, Offset)
-	local Frame = Create("Frame", {
-		BackgroundColor3 = Color or Color3.fromRGB(255, 255, 255),
-		BorderSizePixel = 0
-	}, {
-		Create("UICorner", {
-			CornerRadius = UDim.new(Scale, Offset)
-		})
-	})
-	return Frame
-end)
-
-CreateElement("Button", function()
-	local Button = Create("TextButton", {
-		Text = "",
-		AutoButtonColor = false,
-		BackgroundTransparency = 1,
-		BorderSizePixel = 0
-	})
-	return Button
-end)
-
-CreateElement("ScrollFrame", function(Color, Width)
-	local ScrollFrame = Create("ScrollingFrame", {
-		BackgroundTransparency = 1,
-		MidImage = "rbxassetid://7445543667",
-		BottomImage = "rbxassetid://7445543667",
-		TopImage = "rbxassetid://7445543667",
-		ScrollBarImageColor3 = Color,
-		BorderSizePixel = 0,
-		ScrollBarThickness = Width,
-		CanvasSize = UDim2.new(0, 0, 0, 0)
-	})
-	return ScrollFrame
-end)
-
-CreateElement("Image", function(ImageID)
-	local ImageNew = Create("ImageLabel", {
-		Image = ImageID,
-		BackgroundTransparency = 1
-	})
-
-	if GetIcon(ImageID) ~= nil then
-		ImageNew.Image = GetIcon(ImageID)
-	end	
-
-	return ImageNew
-end)
-
-CreateElement("ImageButton", function(ImageID)
-	local Image = Create("ImageButton", {
-		Image = ImageID,
-		BackgroundTransparency = 1
-	})
-	return Image
-end)
-
-CreateElement("Label", function(Text, TextSize, Transparency)
-	local Label = Create("TextLabel", {
-		Text = Text or "",
-		TextColor3 = Color3.fromRGB(240, 240, 240),
-		TextTransparency = Transparency or 0,
-		TextSize = TextSize or 15,
-		Font = Enum.Font.Gotham,
-		RichText = true,
-		BackgroundTransparency = 1,
-		TextXAlignment = Enum.TextXAlignment.Left
-	})
-	return Label
-end)
-
-local NotificationHolder = SetProps(SetChildren(MakeElement("TFrame"), {
-	SetProps(MakeElement("List"), {
-		HorizontalAlignment = Enum.HorizontalAlignment.Center,
-		SortOrder = Enum.SortOrder.LayoutOrder,
-		VerticalAlignment = Enum.VerticalAlignment.Bottom,
-		Padding = UDim.new(0, 5)
-	})
-}), {
-	Position = UDim2.new(1, -25, 1, -25),
-	Size = UDim2.new(0, 300, 1, -25),
-	AnchorPoint = Vector2.new(1, 1),
-	Parent = Orion
-})
-
-function OrionLib:MakeNotification(NotificationConfig)
-	spawn(function()
-		NotificationConfig.Name = NotificationConfig.Name or "Notification"
-		NotificationConfig.Content = NotificationConfig.Content or "Test"
-		NotificationConfig.Image = NotificationConfig.Image or "rbxassetid://4384403532"
-		NotificationConfig.Time = NotificationConfig.Time or 15
-
-		local NotificationParent = SetProps(MakeElement("TFrame"), {
-			Size = UDim2.new(1, 0, 0, 0),
-			AutomaticSize = Enum.AutomaticSize.Y,
-			Parent = NotificationHolder
-		})
-
-		local NotificationFrame = SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(25, 25, 25), 0, 10), {
-			Parent = NotificationParent, 
-			Size = UDim2.new(1, 0, 0, 0),
-			Position = UDim2.new(1, -55, 0, 0),
-			BackgroundTransparency = 0,
-			AutomaticSize = Enum.AutomaticSize.Y
-		}), {
-			MakeElement("Stroke", Color3.fromRGB(93, 93, 93), 1.2),
-			MakeElement("Padding", 12, 12, 12, 12),
-			SetProps(MakeElement("Image", NotificationConfig.Image), {
-				Size = UDim2.new(0, 20, 0, 20),
-				ImageColor3 = Color3.fromRGB(240, 240, 240),
-				Name = "Icon"
-			}),
-			SetProps(MakeElement("Label", NotificationConfig.Name, 15), {
-				Size = UDim2.new(1, -30, 0, 20),
-				Position = UDim2.new(0, 30, 0, 0),
-				Font = Enum.Font.GothamBold,
-				Name = "Title"
-			}),
-			SetProps(MakeElement("Label", NotificationConfig.Content, 14), {
-				Size = UDim2.new(1, 0, 0, 0),
-				Position = UDim2.new(0, 0, 0, 25),
-				Font = Enum.Font.GothamSemibold,
-				Name = "Content",
-				AutomaticSize = Enum.AutomaticSize.Y,
-				TextColor3 = Color3.fromRGB(200, 200, 200),
-				TextWrapped = true
-			})
-		})
-
-		TweenService:Create(NotificationFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {Position = UDim2.new(0, 0, 0, 0)}):Play()
-
-		wait(NotificationConfig.Time - 0.88)
-		TweenService:Create(NotificationFrame.Icon, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {ImageTransparency = 1}):Play()
-		TweenService:Create(NotificationFrame, TweenInfo.new(0.8, Enum.EasingStyle.Quint), {BackgroundTransparency = 0.6}):Play()
-		wait(0.3)
-		TweenService:Create(NotificationFrame.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {Transparency = 0.9}):Play()
-		TweenService:Create(NotificationFrame.Title, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {TextTransparency = 0.4}):Play()
-		TweenService:Create(NotificationFrame.Content, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {TextTransparency = 0.5}):Play()
-		wait(0.05)
-
-		NotificationFrame:TweenPosition(UDim2.new(1, 20, 0, 0),'In','Quint',0.8,true)
-		wait(1.35)
-		NotificationFrame:Destroy()
-	end)
-end    
-
-function OrionLib:Init()
-	if OrionLib.SaveCfg then	
-		pcall(function()
-			if isfile(OrionLib.Folder .. "/" .. game.GameId .. ".txt") then
-				LoadCfg(readfile(OrionLib.Folder .. "/" .. game.GameId .. ".txt"))
-				OrionLib:MakeNotification({
-					Name = "Configuration",
-					Content = "Auto-loaded configuration for the game " .. game.GameId .. ".",
-					Time = 5
-				})
-			end
-		end)		
-	end	
-end	
-
-function OrionLib:MakeWindow(WindowConfig)
-	local FirstTab = true
-	local Minimized = false
-	local Loaded = false
-	local UIHidden = false
-
-	WindowConfig = WindowConfig or {}
-	WindowConfig.Name = WindowConfig.Name or "Orion Library"
-	WindowConfig.ConfigFolder = WindowConfig.ConfigFolder or WindowConfig.Name
-	WindowConfig.SaveConfig = WindowConfig.SaveConfig or false
-	WindowConfig.HidePremium = WindowConfig.HidePremium or false
-	if WindowConfig.IntroEnabled == nil then
-		WindowConfig.IntroEnabled = true
-	end
-	WindowConfig.IntroText = WindowConfig.IntroText or "Orion Library"
-	WindowConfig.CloseCallback = WindowConfig.CloseCallback or function() end
-	WindowConfig.ShowIcon = WindowConfig.ShowIcon or false
-	WindowConfig.Icon = WindowConfig.Icon or "rbxassetid://8834748103"
-	WindowConfig.IntroIcon = WindowConfig.IntroIcon or "rbxassetid://8834748103"
-	OrionLib.Folder = WindowConfig.ConfigFolder
-	OrionLib.SaveCfg = WindowConfig.SaveConfig
-
-	if WindowConfig.SaveConfig then
-		if not isfolder(WindowConfig.ConfigFolder) then
-			makefolder(WindowConfig.ConfigFolder)
-		end	
-	end
-
-	local TabHolder = AddThemeObject(SetChildren(SetProps(MakeElement("ScrollFrame", Color3.fromRGB(255, 255, 255), 4), {
-		Size = UDim2.new(1, 0, 1, -50)
-	}), {
-		MakeElement("List"),
-		MakeElement("Padding", 8, 0, 0, 8)
-	}), "Divider")
-
-	AddConnection(TabHolder.UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"), function()
-		TabHolder.CanvasSize = UDim2.new(0, 0, 0, TabHolder.UIListLayout.AbsoluteContentSize.Y + 16)
-	end)
-
-	local CloseBtn = SetChildren(SetProps(MakeElement("Button"), {
-		Size = UDim2.new(0.5, 0, 1, 0),
-		Position = UDim2.new(0.5, 0, 0, 0),
-		BackgroundTransparency = 1
-	}), {
-		AddThemeObject(SetProps(MakeElement("Image", "rbxassetid://7072725342"), {
-			Position = UDim2.new(0, 9, 0, 6),
-			Size = UDim2.new(0, 18, 0, 18)
-		}), "Text")
-	})
-
-	local MinimizeBtn = SetChildren(SetProps(MakeElement("Button"), {
-		Size = UDim2.new(0.5, 0, 1, 0),
-		BackgroundTransparency = 1
-	}), {
-		AddThemeObject(SetProps(MakeElement("Image", "rbxassetid://7072719338"), {
-			Position = UDim2.new(0, 9, 0, 6),
-			Size = UDim2.new(0, 18, 0, 18),
-			Name = "Ico"
-		}), "Text")
-	})
-
-	local DragPoint = SetProps(MakeElement("TFrame"), {
-		Size = UDim2.new(1, 0, 0, 50)
-	})
-
-	local WindowStuff = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 10), {
-		Size = UDim2.new(0, 150, 1, -50),
-		Position = UDim2.new(0, 0, 0, 50)
-	}), {
-		AddThemeObject(SetProps(MakeElement("Frame"), {
-			Size = UDim2.new(1, 0, 0, 10),
-			Position = UDim2.new(0, 0, 0, 0)
-		}), "Second"), 
-		AddThemeObject(SetProps(MakeElement("Frame"), {
-			Size = UDim2.new(0, 10, 1, 0),
-			Position = UDim2.new(1, -10, 0, 0)
-		}), "Second"), 
-		AddThemeObject(SetProps(MakeElement("Frame"), {
-			Size = UDim2.new(0, 1, 1, 0),
-			Position = UDim2.new(1, -1, 0, 0)
-		}), "Stroke"), 
-		TabHolder,
-		SetChildren(SetProps(MakeElement("TFrame"), {
-			Size = UDim2.new(1, 0, 0, 50),
-			Position = UDim2.new(0, 0, 1, -50)
-		}), {
-			AddThemeObject(SetProps(MakeElement("Frame"), {
-				Size = UDim2.new(1, 0, 0, 1)
-			}), "Stroke"), 
-			AddThemeObject(SetChildren(SetProps(MakeElement("Frame"), {
-				AnchorPoint = Vector2.new(0, 0.5),
-				Size = UDim2.new(0, 32, 0, 32),
-				Position = UDim2.new(0, 10, 0.5, 0)
-			}), {
-				SetProps(MakeElement("Image", "https://www.roblox.com/headshot-thumbnail/image?userId=".. LocalPlayer.UserId .."&width=420&height=420&format=png"), {
-					Size = UDim2.new(1, 0, 1, 0)
-				}),
-				AddThemeObject(SetProps(MakeElement("Image", "rbxassetid://4031889928"), {
-					Size = UDim2.new(1, 0, 1, 0),
-				}), "Second"),
-				MakeElement("Corner", 1)
-			}), "Divider"),
-			SetChildren(SetProps(MakeElement("TFrame"), {
-				AnchorPoint = Vector2.new(0, 0.5),
-				Size = UDim2.new(0, 32, 0, 32),
-				Position = UDim2.new(0, 10, 0.5, 0)
-			}), {
-				AddThemeObject(MakeElement("Stroke"), "Stroke"),
-				MakeElement("Corner", 1)
-			}),
-			AddThemeObject(SetProps(MakeElement("Label", LocalPlayer.DisplayName, WindowConfig.HidePremium and 14 or 13), {
-				Size = UDim2.new(1, -60, 0, 13),
-				Position = WindowConfig.HidePremium and UDim2.new(0, 50, 0, 19) or UDim2.new(0, 50, 0, 12),
-				Font = Enum.Font.GothamBold,
-				ClipsDescendants = true
-			}), "Text"),
-			AddThemeObject(SetProps(MakeElement("Label", "", 12), {
-				Size = UDim2.new(1, -60, 0, 12),
-				Position = UDim2.new(0, 50, 1, -25),
-				Visible = not WindowConfig.HidePremium
-			}), "TextDark")
-		}),
-	}), "Second")
-
-	local WindowName = AddThemeObject(SetProps(MakeElement("Label", WindowConfig.Name, 14), {
-		Size = UDim2.new(1, -30, 2, 0),
-		Position = UDim2.new(0, 25, 0, -24),
-		Font = Enum.Font.GothamBlack,
-		TextSize = 20
-	}), "Text")
-
-	local WindowTopBarLine = AddThemeObject(SetProps(MakeElement("Frame"), {
-		Size = UDim2.new(1, 0, 0, 1),
-		Position = UDim2.new(0, 0, 1, -1)
-	}), "Stroke")
-
-	local MainWindow = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 10), {
-		Parent = Orion,
-		Position = UDim2.new(0.5, -307, 0.5, -172),
-		Size = UDim2.new(0, 615, 0, 344),
-		ClipsDescendants = true
-	}), {
-		--SetProps(MakeElement("Image", "rbxassetid://3523728077"), {
-		--	AnchorPoint = Vector2.new(0.5, 0.5),
-		--	Position = UDim2.new(0.5, 0, 0.5, 0),
-		--	Size = UDim2.new(1, 80, 1, 320),
-		--	ImageColor3 = Color3.fromRGB(33, 33, 33),
-		--	ImageTransparency = 0.7
-		--}),
-		SetChildren(SetProps(MakeElement("TFrame"), {
-			Size = UDim2.new(1, 0, 0, 50),
-			Name = "TopBar"
-		}), {
-			WindowName,
-			WindowTopBarLine,
-			AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 7), {
-				Size = UDim2.new(0, 70, 0, 30),
-				Position = UDim2.new(1, -90, 0, 10)
-			}), {
-				AddThemeObject(MakeElement("Stroke"), "Stroke"),
-				AddThemeObject(SetProps(MakeElement("Frame"), {
-					Size = UDim2.new(0, 1, 1, 0),
-					Position = UDim2.new(0.5, 0, 0, 0)
-				}), "Stroke"), 
-				CloseBtn,
-				MinimizeBtn
-			}), "Second"), 
-		}),
-		DragPoint,
-		WindowStuff
-	}), "Main")
-
-	if WindowConfig.ShowIcon then
-		WindowName.Position = UDim2.new(0, 50, 0, -24)
-		local WindowIcon = SetProps(MakeElement("Image", WindowConfig.Icon), {
-			Size = UDim2.new(0, 20, 0, 20),
-			Position = UDim2.new(0, 25, 0, 15)
-		})
-		WindowIcon.Parent = MainWindow.TopBar
-	end	
-
-	AddDraggingFunctionality(DragPoint, MainWindow)
-
-	AddConnection(CloseBtn.MouseButton1Up, function()
-		MainWindow.Visible = false
-		UIHidden = true
-		OrionLib:MakeNotification({
-			Name = "Interface Hidden",
-			Content = "Tap RightShift to reopen the interface",
-			Time = 5
-		})
-		WindowConfig.CloseCallback()
-	end)
-
-	AddConnection(UserInputService.InputBegan, function(Input)
-		if Input.KeyCode == Enum.KeyCode.RightShift and UIHidden then
-			MainWindow.Visible = true
-		end
-	end)
-
-	AddConnection(MinimizeBtn.MouseButton1Up, function()
-		if Minimized then
-			TweenService:Create(MainWindow, TweenInfo.new(0.5, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Size = UDim2.new(0, 615, 0, 344)}):Play()
-			MinimizeBtn.Ico.Image = "rbxassetid://7072719338"
-			wait(.02)
-			MainWindow.ClipsDescendants = false
-			WindowStuff.Visible = true
-			WindowTopBarLine.Visible = true
-		else
-			MainWindow.ClipsDescendants = true
-			WindowTopBarLine.Visible = false
-			MinimizeBtn.Ico.Image = "rbxassetid://7072720870"
-
-			TweenService:Create(MainWindow, TweenInfo.new(0.5, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Size = UDim2.new(0, WindowName.TextBounds.X + 140, 0, 50)}):Play()
-			wait(0.1)
-			WindowStuff.Visible = false	
-		end
-		Minimized = not Minimized    
-	end)
-
-	local function LoadSequence()
-		MainWindow.Visible = false
-		local LoadSequenceLogo = SetProps(MakeElement("Image", WindowConfig.IntroIcon), {
-			Parent = Orion,
-			AnchorPoint = Vector2.new(0.5, 0.5),
-			Position = UDim2.new(0.5, 0, 0.4, 0),
-			Size = UDim2.new(0, 28, 0, 28),
-			ImageColor3 = Color3.fromRGB(255, 255, 255),
-			ImageTransparency = 1
-		})
-
-		local LoadSequenceText = SetProps(MakeElement("Label", WindowConfig.IntroText, 14), {
-			Parent = Orion,
-			Size = UDim2.new(1, 0, 1, 0),
-			AnchorPoint = Vector2.new(0.5, 0.5),
-			Position = UDim2.new(0.5, 19, 0.5, 0),
-			TextXAlignment = Enum.TextXAlignment.Center,
-			Font = Enum.Font.GothamBold,
-			TextTransparency = 1
-		})
-
-		TweenService:Create(LoadSequenceLogo, TweenInfo.new(.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {ImageTransparency = 0, Position = UDim2.new(0.5, 0, 0.5, 0)}):Play()
-		wait(0.8)
-		TweenService:Create(LoadSequenceLogo, TweenInfo.new(.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Position = UDim2.new(0.5, -(LoadSequenceText.TextBounds.X/2), 0.5, 0)}):Play()
-		wait(0.3)
-		TweenService:Create(LoadSequenceText, TweenInfo.new(.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {TextTransparency = 0}):Play()
-		wait(2)
-		TweenService:Create(LoadSequenceText, TweenInfo.new(.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {TextTransparency = 1}):Play()
-		MainWindow.Visible = true
-		LoadSequenceLogo:Destroy()
-		LoadSequenceText:Destroy()
-	end 
-
-	if WindowConfig.IntroEnabled then
-		LoadSequence()
-	end	
-
-	local TabFunction = {}
-	function TabFunction:MakeTab(TabConfig)
-		TabConfig = TabConfig or {}
-		TabConfig.Name = TabConfig.Name or "Tab"
-		TabConfig.Icon = TabConfig.Icon or ""
-		TabConfig.PremiumOnly = TabConfig.PremiumOnly or false
-
-		local TabFrame = SetChildren(SetProps(MakeElement("Button"), {
-			Size = UDim2.new(1, 0, 0, 30),
-			Parent = TabHolder
-		}), {
-			AddThemeObject(SetProps(MakeElement("Image", TabConfig.Icon), {
-				AnchorPoint = Vector2.new(0, 0.5),
-				Size = UDim2.new(0, 18, 0, 18),
-				Position = UDim2.new(0, 10, 0.5, 0),
-				ImageTransparency = 0.4,
-				Name = "Ico"
-			}), "Text"),
-			AddThemeObject(SetProps(MakeElement("Label", TabConfig.Name, 14), {
-				Size = UDim2.new(1, -35, 1, 0),
-				Position = UDim2.new(0, 35, 0, 0),
-				Font = Enum.Font.GothamSemibold,
-				TextTransparency = 0.4,
-				Name = "Title"
-			}), "Text")
-		})
-
-		if GetIcon(TabConfig.Icon) ~= nil then
-			TabFrame.Ico.Image = GetIcon(TabConfig.Icon)
-		end	
-
-		local Container = AddThemeObject(SetChildren(SetProps(MakeElement("ScrollFrame", Color3.fromRGB(255, 255, 255), 5), {
-			Size = UDim2.new(1, -150, 1, -50),
-			Position = UDim2.new(0, 150, 0, 50),
-			Parent = MainWindow,
-			Visible = false,
-			Name = "ItemContainer"
-		}), {
-			MakeElement("List", 0, 6),
-			MakeElement("Padding", 15, 10, 10, 15)
-		}), "Divider")
-
-		AddConnection(Container.UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"), function()
-			Container.CanvasSize = UDim2.new(0, 0, 0, Container.UIListLayout.AbsoluteContentSize.Y + 30)
-		end)
-
-		if FirstTab then
-			FirstTab = false
-			TabFrame.Ico.ImageTransparency = 0
-			TabFrame.Title.TextTransparency = 0
-			TabFrame.Title.Font = Enum.Font.GothamBlack
-			Container.Visible = true
-		end    
-
-		AddConnection(TabFrame.MouseButton1Click, function()
-			for _, Tab in next, TabHolder:GetChildren() do
-				if Tab:IsA("TextButton") then
-					Tab.Title.Font = Enum.Font.GothamSemibold
-					TweenService:Create(Tab.Ico, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {ImageTransparency = 0.4}):Play()
-					TweenService:Create(Tab.Title, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {TextTransparency = 0.4}):Play()
-				end    
-			end
-			for _, ItemContainer in next, MainWindow:GetChildren() do
-				if ItemContainer.Name == "ItemContainer" then
-					ItemContainer.Visible = false
-				end    
-			end  
-			TweenService:Create(TabFrame.Ico, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {ImageTransparency = 0}):Play()
-			TweenService:Create(TabFrame.Title, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {TextTransparency = 0}):Play()
-			TabFrame.Title.Font = Enum.Font.GothamBlack
-			Container.Visible = true   
-		end)
-
-		local function GetElements(ItemParent)
-			local ElementFunction = {}
-			function ElementFunction:AddLabel(Text)
-				local LabelFrame = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 5), {
-					Size = UDim2.new(1, 0, 0, 30),
-					BackgroundTransparency = 0.7,
-					Parent = ItemParent
-				}), {
-					AddThemeObject(SetProps(MakeElement("Label", Text, 15), {
-						Size = UDim2.new(1, -12, 1, 0),
-						Position = UDim2.new(0, 12, 0, 0),
-						Font = Enum.Font.GothamBold,
-						Name = "Content"
-					}), "Text"),
-					AddThemeObject(MakeElement("Stroke"), "Stroke")
-				}), "Second")
-
-				local LabelFunction = {}
-				function LabelFunction:Set(ToChange)
-					LabelFrame.Content.Text = ToChange
-				end
-				return LabelFunction
-			end
-			function ElementFunction:AddParagraph(Text, Content)
-				Text = Text or "Text"
-				Content = Content or "Content"
-
-				local ParagraphFrame = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 5), {
-					Size = UDim2.new(1, 0, 0, 30),
-					BackgroundTransparency = 0.7,
-					Parent = ItemParent
-				}), {
-					AddThemeObject(SetProps(MakeElement("Label", Text, 15), {
-						Size = UDim2.new(1, -12, 0, 14),
-						Position = UDim2.new(0, 12, 0, 10),
-						Font = Enum.Font.GothamBold,
-						Name = "Title"
-					}), "Text"),
-					AddThemeObject(SetProps(MakeElement("Label", "", 13), {
-						Size = UDim2.new(1, -24, 0, 0),
-						Position = UDim2.new(0, 12, 0, 26),
-						Font = Enum.Font.GothamSemibold,
-						Name = "Content",
-						TextWrapped = true
-					}), "TextDark"),
-					AddThemeObject(MakeElement("Stroke"), "Stroke")
-				}), "Second")
-
-				AddConnection(ParagraphFrame.Content:GetPropertyChangedSignal("Text"), function()
-					ParagraphFrame.Content.Size = UDim2.new(1, -24, 0, ParagraphFrame.Content.TextBounds.Y)
-					ParagraphFrame.Size = UDim2.new(1, 0, 0, ParagraphFrame.Content.TextBounds.Y + 35)
-				end)
-
-				ParagraphFrame.Content.Text = Content
-
-				local ParagraphFunction = {}
-				function ParagraphFunction:Set(ToChange)
-					ParagraphFrame.Content.Text = ToChange
-				end
-				return ParagraphFunction
-			end    
-			function ElementFunction:AddButton(ButtonConfig)
-				ButtonConfig = ButtonConfig or {}
-				ButtonConfig.Name = ButtonConfig.Name or "Button"
-				ButtonConfig.Callback = ButtonConfig.Callback or function() end
-				ButtonConfig.Icon = ButtonConfig.Icon or "rbxassetid://3944703587"
-
-				local Button = {}
-
-				local Click = SetProps(MakeElement("Button"), {
-					Size = UDim2.new(1, 0, 1, 0)
-				})
-
-				local ButtonFrame = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 5), {
-					Size = UDim2.new(1, 0, 0, 33),
-					Parent = ItemParent
-				}), {
-					AddThemeObject(SetProps(MakeElement("Label", ButtonConfig.Name, 15), {
-						Size = UDim2.new(1, -12, 1, 0),
-						Position = UDim2.new(0, 12, 0, 0),
-						Font = Enum.Font.GothamBold,
-						Name = "Content"
-					}), "Text"),
-					AddThemeObject(SetProps(MakeElement("Image", ButtonConfig.Icon), {
-						Size = UDim2.new(0, 20, 0, 20),
-						Position = UDim2.new(1, -30, 0, 7),
-					}), "TextDark"),
-					AddThemeObject(MakeElement("Stroke"), "Stroke"),
-					Click
-				}), "Second")
-
-				AddConnection(Click.MouseEnter, function()
-					TweenService:Create(ButtonFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {BackgroundColor3 = Color3.fromRGB(OrionLib.Themes[OrionLib.SelectedTheme].Second.R * 255 + 3, OrionLib.Themes[OrionLib.SelectedTheme].Second.G * 255 + 3, OrionLib.Themes[OrionLib.SelectedTheme].Second.B * 255 + 3)}):Play()
-				end)
-
-				AddConnection(Click.MouseLeave, function()
-					TweenService:Create(ButtonFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {BackgroundColor3 = OrionLib.Themes[OrionLib.SelectedTheme].Second}):Play()
-				end)
-
-				AddConnection(Click.MouseButton1Up, function()
-					TweenService:Create(ButtonFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {BackgroundColor3 = Color3.fromRGB(OrionLib.Themes[OrionLib.SelectedTheme].Second.R * 255 + 3, OrionLib.Themes[OrionLib.SelectedTheme].Second.G * 255 + 3, OrionLib.Themes[OrionLib.SelectedTheme].Second.B * 255 + 3)}):Play()
-					spawn(function()
-						ButtonConfig.Callback()
-					end)
-				end)
-
-				AddConnection(Click.MouseButton1Down, function()
-					TweenService:Create(ButtonFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {BackgroundColor3 = Color3.fromRGB(OrionLib.Themes[OrionLib.SelectedTheme].Second.R * 255 + 6, OrionLib.Themes[OrionLib.SelectedTheme].Second.G * 255 + 6, OrionLib.Themes[OrionLib.SelectedTheme].Second.B * 255 + 6)}):Play()
-				end)
-
-				function Button:Set(ButtonText)
-					ButtonFrame.Content.Text = ButtonText
-				end	
-
-				return Button
-			end    
-			function ElementFunction:AddToggle(ToggleConfig)
-				ToggleConfig = ToggleConfig or {}
-				ToggleConfig.Name = ToggleConfig.Name or "Toggle"
-				ToggleConfig.Default = ToggleConfig.Default or false
-				ToggleConfig.Callback = ToggleConfig.Callback or function() end
-				ToggleConfig.Color = ToggleConfig.Color or Color3.fromRGB(9, 99, 195)
-				ToggleConfig.Flag = ToggleConfig.Flag or nil
-				ToggleConfig.Save = ToggleConfig.Save or false
-
-				local Toggle = {Value = ToggleConfig.Default, Save = ToggleConfig.Save}
-
-				local Click = SetProps(MakeElement("Button"), {
-					Size = UDim2.new(1, 0, 1, 0)
-				})
-
-				local ToggleBox = SetChildren(SetProps(MakeElement("RoundFrame", ToggleConfig.Color, 0, 4), {
-					Size = UDim2.new(0, 24, 0, 24),
-					Position = UDim2.new(1, -24, 0.5, 0),
-					AnchorPoint = Vector2.new(0.5, 0.5)
-				}), {
-					SetProps(MakeElement("Stroke"), {
-						Color = ToggleConfig.Color,
-						Name = "Stroke",
-						Transparency = 0.5
-					}),
-					SetProps(MakeElement("Image", "rbxassetid://3944680095"), {
-						Size = UDim2.new(0, 20, 0, 20),
-						AnchorPoint = Vector2.new(0.5, 0.5),
-						Position = UDim2.new(0.5, 0, 0.5, 0),
-						ImageColor3 = Color3.fromRGB(255, 255, 255),
-						Name = "Ico"
-					}),
-				})
-
-				local ToggleFrame = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 5), {
-					Size = UDim2.new(1, 0, 0, 38),
-					Parent = ItemParent
-				}), {
-					AddThemeObject(SetProps(MakeElement("Label", ToggleConfig.Name, 15), {
-						Size = UDim2.new(1, -12, 1, 0),
-						Position = UDim2.new(0, 12, 0, 0),
-						Font = Enum.Font.GothamBold,
-						Name = "Content"
-					}), "Text"),
-					AddThemeObject(MakeElement("Stroke"), "Stroke"),
-					ToggleBox,
-					Click
-				}), "Second")
-
-				function Toggle:Set(Value)
-					Toggle.Value = Value
-					TweenService:Create(ToggleBox, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {BackgroundColor3 = Toggle.Value and ToggleConfig.Color or OrionLib.Themes.Default.Divider}):Play()
-					TweenService:Create(ToggleBox.Stroke, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Color = Toggle.Value and ToggleConfig.Color or OrionLib.Themes.Default.Stroke}):Play()
-					TweenService:Create(ToggleBox.Ico, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {ImageTransparency = Toggle.Value and 0 or 1, Size = Toggle.Value and UDim2.new(0, 20, 0, 20) or UDim2.new(0, 8, 0, 8)}):Play()
-					ToggleConfig.Callback(Toggle.Value)
-				end    
-
-				Toggle:Set(Toggle.Value)
-
-				AddConnection(Click.MouseEnter, function()
-					TweenService:Create(ToggleFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {BackgroundColor3 = Color3.fromRGB(OrionLib.Themes[OrionLib.SelectedTheme].Second.R * 255 + 3, OrionLib.Themes[OrionLib.SelectedTheme].Second.G * 255 + 3, OrionLib.Themes[OrionLib.SelectedTheme].Second.B * 255 + 3)}):Play()
-				end)
-
-				AddConnection(Click.MouseLeave, function()
-					TweenService:Create(ToggleFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {BackgroundColor3 = OrionLib.Themes[OrionLib.SelectedTheme].Second}):Play()
-				end)
-
-				AddConnection(Click.MouseButton1Up, function()
-					TweenService:Create(ToggleFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {BackgroundColor3 = Color3.fromRGB(OrionLib.Themes[OrionLib.SelectedTheme].Second.R * 255 + 3, OrionLib.Themes[OrionLib.SelectedTheme].Second.G * 255 + 3, OrionLib.Themes[OrionLib.SelectedTheme].Second.B * 255 + 3)}):Play()
-					SaveCfg(game.GameId)
-					Toggle:Set(not Toggle.Value)
-				end)
-
-				AddConnection(Click.MouseButton1Down, function()
-					TweenService:Create(ToggleFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {BackgroundColor3 = Color3.fromRGB(OrionLib.Themes[OrionLib.SelectedTheme].Second.R * 255 + 6, OrionLib.Themes[OrionLib.SelectedTheme].Second.G * 255 + 6, OrionLib.Themes[OrionLib.SelectedTheme].Second.B * 255 + 6)}):Play()
-				end)
-
-				if ToggleConfig.Flag then
-					OrionLib.Flags[ToggleConfig.Flag] = Toggle
-				end	
-				return Toggle
-			end  
-			function ElementFunction:AddSlider(SliderConfig)
-				SliderConfig = SliderConfig or {}
-				SliderConfig.Name = SliderConfig.Name or "Slider"
-				SliderConfig.Min = SliderConfig.Min or 0
-				SliderConfig.Max = SliderConfig.Max or 100
-				SliderConfig.Increment = SliderConfig.Increment or 1
-				SliderConfig.Default = SliderConfig.Default or 50
-				SliderConfig.Callback = SliderConfig.Callback or function() end
-				SliderConfig.ValueName = SliderConfig.ValueName or ""
-				SliderConfig.Color = SliderConfig.Color or Color3.fromRGB(9, 149, 98)
-				SliderConfig.Flag = SliderConfig.Flag or nil
-				SliderConfig.Save = SliderConfig.Save or false
-
-				local Slider = {Value = SliderConfig.Default, Save = SliderConfig.Save}
-				local Dragging = false
-
-				local SliderDrag = SetChildren(SetProps(MakeElement("RoundFrame", SliderConfig.Color, 0, 5), {
-					Size = UDim2.new(0, 0, 1, 0),
-					BackgroundTransparency = 0.3,
-					ClipsDescendants = true
-				}), {
-					AddThemeObject(SetProps(MakeElement("Label", "value", 13), {
-						Size = UDim2.new(1, -12, 0, 14),
-						Position = UDim2.new(0, 12, 0, 6),
-						Font = Enum.Font.GothamBold,
-						Name = "Value",
-						TextTransparency = 0
-					}), "Text")
-				})
-
-				local SliderBar = SetChildren(SetProps(MakeElement("RoundFrame", SliderConfig.Color, 0, 5), {
-					Size = UDim2.new(1, -24, 0, 26),
-					Position = UDim2.new(0, 12, 0, 30),
-					BackgroundTransparency = 0.9
-				}), {
-					SetProps(MakeElement("Stroke"), {
-						Color = SliderConfig.Color
-					}),
-					AddThemeObject(SetProps(MakeElement("Label", "value", 13), {
-						Size = UDim2.new(1, -12, 0, 14),
-						Position = UDim2.new(0, 12, 0, 6),
-						Font = Enum.Font.GothamBold,
-						Name = "Value",
-						TextTransparency = 0.8
-					}), "Text"),
-					SliderDrag
-				})
-
-				local SliderFrame = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 4), {
-					Size = UDim2.new(1, 0, 0, 65),
-					Parent = ItemParent
-				}), {
-					AddThemeObject(SetProps(MakeElement("Label", SliderConfig.Name, 15), {
-						Size = UDim2.new(1, -12, 0, 14),
-						Position = UDim2.new(0, 12, 0, 10),
-						Font = Enum.Font.GothamBold,
-						Name = "Content"
-					}), "Text"),
-					AddThemeObject(MakeElement("Stroke"), "Stroke"),
-					SliderBar
-				}), "Second")
-
-				SliderBar.InputBegan:Connect(function(Input)
-					if Input.UserInputType == Enum.UserInputType.MouseButton1 then 
-						Dragging = true 
-					end 
-				end)
-				SliderBar.InputEnded:Connect(function(Input) 
-					if Input.UserInputType == Enum.UserInputType.MouseButton1 then 
-						Dragging = false 
-					end 
-				end)
-
-				UserInputService.InputChanged:Connect(function(Input)
-					if Dragging and Input.UserInputType == Enum.UserInputType.MouseMovement then 
-						local SizeScale = math.clamp((Input.Position.X - SliderBar.AbsolutePosition.X) / SliderBar.AbsoluteSize.X, 0, 1)
-						Slider:Set(SliderConfig.Min + ((SliderConfig.Max - SliderConfig.Min) * SizeScale)) 
-						SaveCfg(game.GameId)
-					end
-				end)
-
-				function Slider:Set(Value)
-					self.Value = math.clamp(Round(Value, SliderConfig.Increment), SliderConfig.Min, SliderConfig.Max)
-					TweenService:Create(SliderDrag,TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{Size = UDim2.fromScale((self.Value - SliderConfig.Min) / (SliderConfig.Max - SliderConfig.Min), 1)}):Play()
-					SliderBar.Value.Text = tostring(self.Value) .. " " .. SliderConfig.ValueName
-					SliderDrag.Value.Text = tostring(self.Value) .. " " .. SliderConfig.ValueName
-					SliderConfig.Callback(self.Value)
-				end      
-
-				Slider:Set(Slider.Value)
-				if SliderConfig.Flag then				
-					OrionLib.Flags[SliderConfig.Flag] = Slider
-				end
-				return Slider
-			end  
-			function ElementFunction:AddDropdown(DropdownConfig)
-				DropdownConfig = DropdownConfig or {}
-				DropdownConfig.Name = DropdownConfig.Name or "Dropdown"
-				DropdownConfig.Options = DropdownConfig.Options or {}
-				DropdownConfig.Default = DropdownConfig.Default or ""
-				DropdownConfig.Callback = DropdownConfig.Callback or function() end
-				DropdownConfig.Flag = DropdownConfig.Flag or nil
-				DropdownConfig.Save = DropdownConfig.Save or false
-
-				local Dropdown = {Value = DropdownConfig.Default, Options = DropdownConfig.Options, Buttons = {}, Toggled = false, Type = "Dropdown", Save = DropdownConfig.Save}
-				local MaxElements = 5
-
-				if not table.find(Dropdown.Options, Dropdown.Value) then
-					Dropdown.Value = "..."
-				end
-
-				local DropdownList = MakeElement("List")
-
-				local DropdownContainer = AddThemeObject(SetProps(SetChildren(MakeElement("ScrollFrame", Color3.fromRGB(40, 40, 40), 4), {
-					DropdownList
-				}), {
-					Parent = ItemParent,
-					Position = UDim2.new(0, 0, 0, 38),
-					Size = UDim2.new(1, 0, 1, -38),
-					ClipsDescendants = true
-				}), "Divider")
-
-				local Click = SetProps(MakeElement("Button"), {
-					Size = UDim2.new(1, 0, 1, 0)
-				})
-
-				local DropdownFrame = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 5), {
-					Size = UDim2.new(1, 0, 0, 38),
-					Parent = ItemParent,
-					ClipsDescendants = true
-				}), {
-					DropdownContainer,
-					SetProps(SetChildren(MakeElement("TFrame"), {
-						AddThemeObject(SetProps(MakeElement("Label", DropdownConfig.Name, 15), {
-							Size = UDim2.new(1, -12, 1, 0),
-							Position = UDim2.new(0, 12, 0, 0),
-							Font = Enum.Font.GothamBold,
-							Name = "Content"
-						}), "Text"),
-						AddThemeObject(SetProps(MakeElement("Image", "rbxassetid://7072706796"), {
-							Size = UDim2.new(0, 20, 0, 20),
-							AnchorPoint = Vector2.new(0, 0.5),
-							Position = UDim2.new(1, -30, 0.5, 0),
-							ImageColor3 = Color3.fromRGB(240, 240, 240),
-							Name = "Ico"
-						}), "TextDark"),
-						AddThemeObject(SetProps(MakeElement("Label", "Selected", 13), {
-							Size = UDim2.new(1, -40, 1, 0),
-							Font = Enum.Font.Gotham,
-							Name = "Selected",
-							TextXAlignment = Enum.TextXAlignment.Right
-						}), "TextDark"),
-						AddThemeObject(SetProps(MakeElement("Frame"), {
-							Size = UDim2.new(1, 0, 0, 1),
-							Position = UDim2.new(0, 0, 1, -1),
-							Name = "Line",
-							Visible = false
-						}), "Stroke"), 
-						Click
-					}), {
-						Size = UDim2.new(1, 0, 0, 38),
-						ClipsDescendants = true,
-						Name = "F"
-					}),
-					AddThemeObject(MakeElement("Stroke"), "Stroke"),
-					MakeElement("Corner")
-				}), "Second")
-
-				AddConnection(DropdownList:GetPropertyChangedSignal("AbsoluteContentSize"), function()
-					DropdownContainer.CanvasSize = UDim2.new(0, 0, 0, DropdownList.AbsoluteContentSize.Y)
-				end)  
-
-				local function AddOptions(Options)
-					for _, Option in pairs(Options) do
-						local OptionBtn = AddThemeObject(SetProps(SetChildren(MakeElement("Button", Color3.fromRGB(40, 40, 40)), {
-							MakeElement("Corner", 0, 6),
-							AddThemeObject(SetProps(MakeElement("Label", Option, 13, 0.4), {
-								Position = UDim2.new(0, 8, 0, 0),
-								Size = UDim2.new(1, -8, 1, 0),
-								Name = "Title"
-							}), "Text")
-						}), {
-							Parent = DropdownContainer,
-							Size = UDim2.new(1, 0, 0, 28),
-							BackgroundTransparency = 1,
-							ClipsDescendants = true
-						}), "Divider")
-
-						AddConnection(OptionBtn.MouseButton1Click, function()
-							Dropdown:Set(Option)
-							SaveCfg(game.GameId)
-						end)
-
-						Dropdown.Buttons[Option] = OptionBtn
-					end
-				end	
-
-				function Dropdown:Refresh(Options, Delete)
-					if Delete then
-						for _,v in pairs(Dropdown.Buttons) do
-							v:Destroy()
-						end    
-						table.clear(Dropdown.Options)
-						table.clear(Dropdown.Buttons)
-					end
-					Dropdown.Options = Options
-					AddOptions(Dropdown.Options)
-				end  
-
-				function Dropdown:Set(Value)
-					if not table.find(Dropdown.Options, Value) then
-						Dropdown.Value = "..."
-						DropdownFrame.F.Selected.Text = Dropdown.Value
-						for _, v in pairs(Dropdown.Buttons) do
-							TweenService:Create(v,TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{BackgroundTransparency = 1}):Play()
-							TweenService:Create(v.Title,TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{TextTransparency = 0.4}):Play()
-						end	
-						return
-					end
-
-					Dropdown.Value = Value
-					DropdownFrame.F.Selected.Text = Dropdown.Value
-
-					for _, v in pairs(Dropdown.Buttons) do
-						TweenService:Create(v,TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{BackgroundTransparency = 1}):Play()
-						TweenService:Create(v.Title,TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{TextTransparency = 0.4}):Play()
-					end	
-					TweenService:Create(Dropdown.Buttons[Value],TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{BackgroundTransparency = 0}):Play()
-					TweenService:Create(Dropdown.Buttons[Value].Title,TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{TextTransparency = 0}):Play()
-					return DropdownConfig.Callback(Dropdown.Value)
-				end
-
-				AddConnection(Click.MouseButton1Click, function()
-					Dropdown.Toggled = not Dropdown.Toggled
-					DropdownFrame.F.Line.Visible = Dropdown.Toggled
-					TweenService:Create(DropdownFrame.F.Ico,TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{Rotation = Dropdown.Toggled and 180 or 0}):Play()
-					if #Dropdown.Options > MaxElements then
-						TweenService:Create(DropdownFrame,TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{Size = Dropdown.Toggled and UDim2.new(1, 0, 0, 38 + (MaxElements * 28)) or UDim2.new(1, 0, 0, 38)}):Play()
-					else
-						TweenService:Create(DropdownFrame,TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{Size = Dropdown.Toggled and UDim2.new(1, 0, 0, DropdownList.AbsoluteContentSize.Y + 38) or UDim2.new(1, 0, 0, 38)}):Play()
-					end
-				end)
-
-				Dropdown:Refresh(Dropdown.Options, false)
-				Dropdown:Set(Dropdown.Value)
-				if DropdownConfig.Flag then				
-					OrionLib.Flags[DropdownConfig.Flag] = Dropdown
-				end
-				return Dropdown
-			end
-			function ElementFunction:AddBind(BindConfig)
-				BindConfig.Name = BindConfig.Name or "Bind"
-				BindConfig.Default = BindConfig.Default or Enum.KeyCode.Unknown
-				BindConfig.Hold = BindConfig.Hold or false
-				BindConfig.Callback = BindConfig.Callback or function() end
-				BindConfig.Flag = BindConfig.Flag or nil
-				BindConfig.Save = BindConfig.Save or false
-
-				local Bind = {Value, Binding = false, Type = "Bind", Save = BindConfig.Save}
-				local Holding = false
-
-				local Click = SetProps(MakeElement("Button"), {
-					Size = UDim2.new(1, 0, 1, 0)
-				})
-
-				local BindBox = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 4), {
-					Size = UDim2.new(0, 24, 0, 24),
-					Position = UDim2.new(1, -12, 0.5, 0),
-					AnchorPoint = Vector2.new(1, 0.5)
-				}), {
-					AddThemeObject(MakeElement("Stroke"), "Stroke"),
-					AddThemeObject(SetProps(MakeElement("Label", BindConfig.Name, 14), {
-						Size = UDim2.new(1, 0, 1, 0),
-						Font = Enum.Font.GothamBold,
-						TextXAlignment = Enum.TextXAlignment.Center,
-						Name = "Value"
-					}), "Text")
-				}), "Main")
-
-				local BindFrame = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 5), {
-					Size = UDim2.new(1, 0, 0, 38),
-					Parent = ItemParent
-				}), {
-					AddThemeObject(SetProps(MakeElement("Label", BindConfig.Name, 15), {
-						Size = UDim2.new(1, -12, 1, 0),
-						Position = UDim2.new(0, 12, 0, 0),
-						Font = Enum.Font.GothamBold,
-						Name = "Content"
-					}), "Text"),
-					AddThemeObject(MakeElement("Stroke"), "Stroke"),
-					BindBox,
-					Click
-				}), "Second")
-
-				AddConnection(BindBox.Value:GetPropertyChangedSignal("Text"), function()
-					--BindBox.Size = UDim2.new(0, BindBox.Value.TextBounds.X + 16, 0, 24)
-					TweenService:Create(BindBox, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Size = UDim2.new(0, BindBox.Value.TextBounds.X + 16, 0, 24)}):Play()
-				end)
-
-				AddConnection(Click.InputEnded, function(Input)
-					if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-						if Bind.Binding then return end
-						Bind.Binding = true
-						BindBox.Value.Text = ""
-					end
-				end)
-
-				AddConnection(UserInputService.InputBegan, function(Input)
-					if UserInputService:GetFocusedTextBox() then return end
-					if (Input.KeyCode.Name == Bind.Value or Input.UserInputType.Name == Bind.Value) and not Bind.Binding then
-						if BindConfig.Hold then
-							Holding = true
-							BindConfig.Callback(Holding)
-						else
-							BindConfig.Callback()
-						end
-					elseif Bind.Binding then
-						local Key
-						pcall(function()
-							if not CheckKey(BlacklistedKeys, Input.KeyCode) then
-								Key = Input.KeyCode
-							end
-						end)
-						pcall(function()
-							if CheckKey(WhitelistedMouse, Input.UserInputType) and not Key then
-								Key = Input.UserInputType
-							end
-						end)
-						Key = Key or Bind.Value
-						Bind:Set(Key)
-						SaveCfg(game.GameId)
-					end
-				end)
-
-				AddConnection(UserInputService.InputEnded, function(Input)
-					if Input.KeyCode.Name == Bind.Value or Input.UserInputType.Name == Bind.Value then
-						if BindConfig.Hold and Holding then
-							Holding = false
-							BindConfig.Callback(Holding)
-						end
-					end
-				end)
-
-				AddConnection(Click.MouseEnter, function()
-					TweenService:Create(BindFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {BackgroundColor3 = Color3.fromRGB(OrionLib.Themes[OrionLib.SelectedTheme].Second.R * 255 + 3, OrionLib.Themes[OrionLib.SelectedTheme].Second.G * 255 + 3, OrionLib.Themes[OrionLib.SelectedTheme].Second.B * 255 + 3)}):Play()
-				end)
-
-				AddConnection(Click.MouseLeave, function()
-					TweenService:Create(BindFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {BackgroundColor3 = OrionLib.Themes[OrionLib.SelectedTheme].Second}):Play()
-				end)
-
-				AddConnection(Click.MouseButton1Up, function()
-					TweenService:Create(BindFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {BackgroundColor3 = Color3.fromRGB(OrionLib.Themes[OrionLib.SelectedTheme].Second.R * 255 + 3, OrionLib.Themes[OrionLib.SelectedTheme].Second.G * 255 + 3, OrionLib.Themes[OrionLib.SelectedTheme].Second.B * 255 + 3)}):Play()
-				end)
-
-				AddConnection(Click.MouseButton1Down, function()
-					TweenService:Create(BindFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {BackgroundColor3 = Color3.fromRGB(OrionLib.Themes[OrionLib.SelectedTheme].Second.R * 255 + 6, OrionLib.Themes[OrionLib.SelectedTheme].Second.G * 255 + 6, OrionLib.Themes[OrionLib.SelectedTheme].Second.B * 255 + 6)}):Play()
-				end)
-
-				function Bind:Set(Key)
-					Bind.Binding = false
-					Bind.Value = Key or Bind.Value
-					Bind.Value = Bind.Value.Name or Bind.Value
-					BindBox.Value.Text = Bind.Value
-				end
-
-				Bind:Set(BindConfig.Default)
-				if BindConfig.Flag then				
-					OrionLib.Flags[BindConfig.Flag] = Bind
-				end
-				return Bind
-			end  
-			function ElementFunction:AddTextbox(TextboxConfig)
-				TextboxConfig = TextboxConfig or {}
-				TextboxConfig.Name = TextboxConfig.Name or "Textbox"
-				TextboxConfig.Default = TextboxConfig.Default or ""
-				TextboxConfig.TextDisappear = TextboxConfig.TextDisappear or false
-				TextboxConfig.Callback = TextboxConfig.Callback or function() end
-
-				local Click = SetProps(MakeElement("Button"), {
-					Size = UDim2.new(1, 0, 1, 0)
-				})
-
-				local TextboxActual = AddThemeObject(Create("TextBox", {
-					Size = UDim2.new(1, 0, 1, 0),
-					BackgroundTransparency = 1,
-					TextColor3 = Color3.fromRGB(255, 255, 255),
-					PlaceholderColor3 = Color3.fromRGB(210,210,210),
-					PlaceholderText = "Input",
-					Font = Enum.Font.GothamSemibold,
-					TextXAlignment = Enum.TextXAlignment.Center,
-					TextSize = 14,
-					ClearTextOnFocus = false
-				}), "Text")
-
-				local TextContainer = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 4), {
-					Size = UDim2.new(0, 24, 0, 24),
-					Position = UDim2.new(1, -12, 0.5, 0),
-					AnchorPoint = Vector2.new(1, 0.5)
-				}), {
-					AddThemeObject(MakeElement("Stroke"), "Stroke"),
-					TextboxActual
-				}), "Main")
-
-
-				local TextboxFrame = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 5), {
-					Size = UDim2.new(1, 0, 0, 38),
-					Parent = ItemParent
-				}), {
-					AddThemeObject(SetProps(MakeElement("Label", TextboxConfig.Name, 15), {
-						Size = UDim2.new(1, -12, 1, 0),
-						Position = UDim2.new(0, 12, 0, 0),
-						Font = Enum.Font.GothamBold,
-						Name = "Content"
-					}), "Text"),
-					AddThemeObject(MakeElement("Stroke"), "Stroke"),
-					TextContainer,
-					Click
-				}), "Second")
-
-				AddConnection(TextboxActual:GetPropertyChangedSignal("Text"), function()
-					--TextContainer.Size = UDim2.new(0, TextboxActual.TextBounds.X + 16, 0, 24)
-					TweenService:Create(TextContainer, TweenInfo.new(0.45, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Size = UDim2.new(0, TextboxActual.TextBounds.X + 16, 0, 24)}):Play()
-				end)
-
-				AddConnection(TextboxActual.FocusLost, function()
-					TextboxConfig.Callback(TextboxActual.Text)
-					if TextboxConfig.TextDisappear then
-						TextboxActual.Text = ""
-					end	
-				end)
-
-				TextboxActual.Text = TextboxConfig.Default
-
-				AddConnection(Click.MouseEnter, function()
-					TweenService:Create(TextboxFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {BackgroundColor3 = Color3.fromRGB(OrionLib.Themes[OrionLib.SelectedTheme].Second.R * 255 + 3, OrionLib.Themes[OrionLib.SelectedTheme].Second.G * 255 + 3, OrionLib.Themes[OrionLib.SelectedTheme].Second.B * 255 + 3)}):Play()
-				end)
-
-				AddConnection(Click.MouseLeave, function()
-					TweenService:Create(TextboxFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {BackgroundColor3 = OrionLib.Themes[OrionLib.SelectedTheme].Second}):Play()
-				end)
-
-				AddConnection(Click.MouseButton1Up, function()
-					TweenService:Create(TextboxFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {BackgroundColor3 = Color3.fromRGB(OrionLib.Themes[OrionLib.SelectedTheme].Second.R * 255 + 3, OrionLib.Themes[OrionLib.SelectedTheme].Second.G * 255 + 3, OrionLib.Themes[OrionLib.SelectedTheme].Second.B * 255 + 3)}):Play()
-					TextboxActual:CaptureFocus()
-				end)
-
-				AddConnection(Click.MouseButton1Down, function()
-					TweenService:Create(TextboxFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {BackgroundColor3 = Color3.fromRGB(OrionLib.Themes[OrionLib.SelectedTheme].Second.R * 255 + 6, OrionLib.Themes[OrionLib.SelectedTheme].Second.G * 255 + 6, OrionLib.Themes[OrionLib.SelectedTheme].Second.B * 255 + 6)}):Play()
-				end)
-			end 
-			function ElementFunction:AddColorpicker(ColorpickerConfig)
-				ColorpickerConfig = ColorpickerConfig or {}
-				ColorpickerConfig.Name = ColorpickerConfig.Name or "Colorpicker"
-				ColorpickerConfig.Default = ColorpickerConfig.Default or Color3.fromRGB(255,255,255)
-				ColorpickerConfig.Callback = ColorpickerConfig.Callback or function() end
-				ColorpickerConfig.Flag = ColorpickerConfig.Flag or nil
-				ColorpickerConfig.Save = ColorpickerConfig.Save or false
-
-				local ColorH, ColorS, ColorV = 1, 1, 1
-				local Colorpicker = {Value = ColorpickerConfig.Default, Toggled = false, Type = "Colorpicker", Save = ColorpickerConfig.Save}
-
-				local ColorSelection = Create("ImageLabel", {
-					Size = UDim2.new(0, 18, 0, 18),
-					Position = UDim2.new(select(3, Color3.toHSV(Colorpicker.Value))),
-					ScaleType = Enum.ScaleType.Fit,
-					AnchorPoint = Vector2.new(0.5, 0.5),
-					BackgroundTransparency = 1,
-					Image = "http://www.roblox.com/asset/?id=4805639000"
-				})
-
-				local HueSelection = Create("ImageLabel", {
-					Size = UDim2.new(0, 18, 0, 18),
-					Position = UDim2.new(0.5, 0, 1 - select(1, Color3.toHSV(Colorpicker.Value))),
-					ScaleType = Enum.ScaleType.Fit,
-					AnchorPoint = Vector2.new(0.5, 0.5),
-					BackgroundTransparency = 1,
-					Image = "http://www.roblox.com/asset/?id=4805639000"
-				})
-
-				local Color = Create("ImageLabel", {
-					Size = UDim2.new(1, -25, 1, 0),
-					Visible = false,
-					Image = "rbxassetid://4155801252"
-				}, {
-					Create("UICorner", {CornerRadius = UDim.new(0, 5)}),
-					ColorSelection
-				})
-
-				local Hue = Create("Frame", {
-					Size = UDim2.new(0, 20, 1, 0),
-					Position = UDim2.new(1, -20, 0, 0),
-					Visible = false
-				}, {
-					Create("UIGradient", {Rotation = 270, Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 0, 4)), ColorSequenceKeypoint.new(0.20, Color3.fromRGB(234, 255, 0)), ColorSequenceKeypoint.new(0.40, Color3.fromRGB(21, 255, 0)), ColorSequenceKeypoint.new(0.60, Color3.fromRGB(0, 255, 255)), ColorSequenceKeypoint.new(0.80, Color3.fromRGB(0, 17, 255)), ColorSequenceKeypoint.new(0.90, Color3.fromRGB(255, 0, 251)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(255, 0, 4))},}),
-					Create("UICorner", {CornerRadius = UDim.new(0, 5)}),
-					HueSelection
-				})
-
-				local ColorpickerContainer = Create("Frame", {
-					Position = UDim2.new(0, 0, 0, 32),
-					Size = UDim2.new(1, 0, 1, -32),
-					BackgroundTransparency = 1,
-					ClipsDescendants = true
-				}, {
-					Hue,
-					Color,
-					Create("UIPadding", {
-						PaddingLeft = UDim.new(0, 35),
-						PaddingRight = UDim.new(0, 35),
-						PaddingBottom = UDim.new(0, 10),
-						PaddingTop = UDim.new(0, 17)
-					})
-				})
-
-				local Click = SetProps(MakeElement("Button"), {
-					Size = UDim2.new(1, 0, 1, 0)
-				})
-
-				local ColorpickerBox = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 4), {
-					Size = UDim2.new(0, 24, 0, 24),
-					Position = UDim2.new(1, -12, 0.5, 0),
-					AnchorPoint = Vector2.new(1, 0.5)
-				}), {
-					AddThemeObject(MakeElement("Stroke"), "Stroke")
-				}), "Main")
-
-				local ColorpickerFrame = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 5), {
-					Size = UDim2.new(1, 0, 0, 38),
-					Parent = ItemParent
-				}), {
-					SetProps(SetChildren(MakeElement("TFrame"), {
-						AddThemeObject(SetProps(MakeElement("Label", ColorpickerConfig.Name, 15), {
-							Size = UDim2.new(1, -12, 1, 0),
-							Position = UDim2.new(0, 12, 0, 0),
-							Font = Enum.Font.GothamBold,
-							Name = "Content"
-						}), "Text"),
-						ColorpickerBox,
-						Click,
-						AddThemeObject(SetProps(MakeElement("Frame"), {
-							Size = UDim2.new(1, 0, 0, 1),
-							Position = UDim2.new(0, 0, 1, -1),
-							Name = "Line",
-							Visible = false
-						}), "Stroke"), 
-					}), {
-						Size = UDim2.new(1, 0, 0, 38),
-						ClipsDescendants = true,
-						Name = "F"
-					}),
-					ColorpickerContainer,
-					AddThemeObject(MakeElement("Stroke"), "Stroke"),
-				}), "Second")
-
-				AddConnection(Click.MouseButton1Click, function()
-					Colorpicker.Toggled = not Colorpicker.Toggled
-					TweenService:Create(ColorpickerFrame,TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{Size = Colorpicker.Toggled and UDim2.new(1, 0, 0, 148) or UDim2.new(1, 0, 0, 38)}):Play()
-					Color.Visible = Colorpicker.Toggled
-					Hue.Visible = Colorpicker.Toggled
-					ColorpickerFrame.F.Line.Visible = Colorpicker.Toggled
-				end)
-
-				local function UpdateColorPicker()
-					ColorpickerBox.BackgroundColor3 = Color3.fromHSV(ColorH, ColorS, ColorV)
-					Color.BackgroundColor3 = Color3.fromHSV(ColorH, 1, 1)
-					Colorpicker:Set(ColorpickerBox.BackgroundColor3)
-					ColorpickerConfig.Callback(ColorpickerBox.BackgroundColor3)
-					SaveCfg(game.GameId)
-				end
-
-				ColorH = 1 - (math.clamp(HueSelection.AbsolutePosition.Y - Hue.AbsolutePosition.Y, 0, Hue.AbsoluteSize.Y) / Hue.AbsoluteSize.Y)
-				ColorS = (math.clamp(ColorSelection.AbsolutePosition.X - Color.AbsolutePosition.X, 0, Color.AbsoluteSize.X) / Color.AbsoluteSize.X)
-				ColorV = 1 - (math.clamp(ColorSelection.AbsolutePosition.Y - Color.AbsolutePosition.Y, 0, Color.AbsoluteSize.Y) / Color.AbsoluteSize.Y)
-
-				AddConnection(Color.InputBegan, function(input)
-					if input.UserInputType == Enum.UserInputType.MouseButton1 then
-						if ColorInput then
-							ColorInput:Disconnect()
-						end
-						ColorInput = AddConnection(RunService.RenderStepped, function()
-							local ColorX = (math.clamp(Mouse.X - Color.AbsolutePosition.X, 0, Color.AbsoluteSize.X) / Color.AbsoluteSize.X)
-							local ColorY = (math.clamp(Mouse.Y - Color.AbsolutePosition.Y, 0, Color.AbsoluteSize.Y) / Color.AbsoluteSize.Y)
-							ColorSelection.Position = UDim2.new(ColorX, 0, ColorY, 0)
-							ColorS = ColorX
-							ColorV = 1 - ColorY
-							UpdateColorPicker()
-						end)
-					end
-				end)
-
-				AddConnection(Color.InputEnded, function(input)
-					if input.UserInputType == Enum.UserInputType.MouseButton1 then
-						if ColorInput then
-							ColorInput:Disconnect()
-						end
-					end
-				end)
-
-				AddConnection(Hue.InputBegan, function(input)
-					if input.UserInputType == Enum.UserInputType.MouseButton1 then
-						if HueInput then
-							HueInput:Disconnect()
-						end;
-
-						HueInput = AddConnection(RunService.RenderStepped, function()
-							local HueY = (math.clamp(Mouse.Y - Hue.AbsolutePosition.Y, 0, Hue.AbsoluteSize.Y) / Hue.AbsoluteSize.Y)
-
-							HueSelection.Position = UDim2.new(0.5, 0, HueY, 0)
-							ColorH = 1 - HueY
-
-							UpdateColorPicker()
-						end)
-					end
-				end)
-
-				AddConnection(Hue.InputEnded, function(input)
-					if input.UserInputType == Enum.UserInputType.MouseButton1 then
-						if HueInput then
-							HueInput:Disconnect()
-						end
-					end
-				end)
-
-				function Colorpicker:Set(Value)
-					Colorpicker.Value = Value
-					ColorpickerBox.BackgroundColor3 = Colorpicker.Value
-					ColorpickerConfig.Callback(Colorpicker.Value)
-				end
-
-				Colorpicker:Set(Colorpicker.Value)
-				if ColorpickerConfig.Flag then				
-					OrionLib.Flags[ColorpickerConfig.Flag] = Colorpicker
-				end
-				return Colorpicker
-			end  
-			return ElementFunction   
-		end	
-
-		local ElementFunction = {}
-
-		function ElementFunction:AddSection(SectionConfig)
-			SectionConfig.Name = SectionConfig.Name or "Section"
-
-			local SectionFrame = SetChildren(SetProps(MakeElement("TFrame"), {
-				Size = UDim2.new(1, 0, 0, 26),
-				Parent = Container
-			}), {
-				AddThemeObject(SetProps(MakeElement("Label", SectionConfig.Name, 14), {
-					Size = UDim2.new(1, -12, 0, 16),
-					Position = UDim2.new(0, 0, 0, 3),
-					Font = Enum.Font.GothamSemibold
-				}), "TextDark"),
-				SetChildren(SetProps(MakeElement("TFrame"), {
-					AnchorPoint = Vector2.new(0, 0),
-					Size = UDim2.new(1, 0, 1, -24),
-					Position = UDim2.new(0, 0, 0, 23),
-					Name = "Holder"
-				}), {
-					MakeElement("List", 0, 6)
-				}),
-			})
-
-			AddConnection(SectionFrame.Holder.UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"), function()
-				SectionFrame.Size = UDim2.new(1, 0, 0, SectionFrame.Holder.UIListLayout.AbsoluteContentSize.Y + 31)
-				SectionFrame.Holder.Size = UDim2.new(1, 0, 0, SectionFrame.Holder.UIListLayout.AbsoluteContentSize.Y)
-			end)
-
-			local SectionFunction = {}
-			for i, v in next, GetElements(SectionFrame.Holder) do
-				SectionFunction[i] = v 
-			end
-			return SectionFunction
-		end	
-
-		for i, v in next, GetElements(Container) do
-			ElementFunction[i] = v 
-		end
-
-		if TabConfig.PremiumOnly then
-			for i, v in next, ElementFunction do
-				ElementFunction[i] = function() end
-			end    
-			Container:FindFirstChild("UIListLayout"):Destroy()
-			Container:FindFirstChild("UIPadding"):Destroy()
-			SetChildren(SetProps(MakeElement("TFrame"), {
-				Size = UDim2.new(1, 0, 1, 0),
-				Parent = ItemParent
-			}), {
-				AddThemeObject(SetProps(MakeElement("Image", "rbxassetid://3610239960"), {
-					Size = UDim2.new(0, 18, 0, 18),
-					Position = UDim2.new(0, 15, 0, 15),
-					ImageTransparency = 0.4
-				}), "Text"),
-				AddThemeObject(SetProps(MakeElement("Label", "Unauthorised Access", 14), {
-					Size = UDim2.new(1, -38, 0, 14),
-					Position = UDim2.new(0, 38, 0, 18),
-					TextTransparency = 0.4
-				}), "Text"),
-				AddThemeObject(SetProps(MakeElement("Image", "rbxassetid://4483345875"), {
-					Size = UDim2.new(0, 56, 0, 56),
-					Position = UDim2.new(0, 84, 0, 110),
-				}), "Text"),
-				AddThemeObject(SetProps(MakeElement("Label", "Premium Features", 14), {
-					Size = UDim2.new(1, -150, 0, 14),
-					Position = UDim2.new(0, 150, 0, 112),
-					Font = Enum.Font.GothamBold
-				}), "Text"),
-				AddThemeObject(SetProps(MakeElement("Label", "Lol Scam!", 12), {
-					Size = UDim2.new(1, -200, 0, 14),
-					Position = UDim2.new(0, 150, 0, 138),
-					TextWrapped = true,
-					TextTransparency = 0.4
-				}), "Text")
-			})
-		end
-		return ElementFunction   
-	end  
-	
-	OrionLib:MakeNotification({
-		Name = "Charboasting Hub",
-		Content = "Let's rizz up some people and roast some people!",
-		Time = 5
-	})
-	
-
-	
-	return TabFunction
-end   
-
-function OrionLib:Destroy()
-	Orion:Destroy()
-end
-
-return OrionLib
-local Window = OrionLib:MakeWindow({Name = "RIZZ HUB", HidePremium = false, SaveConfig = true, ConfigFolder = "OrionTest"})
-
-local Tab1 = Window:MakeTab({ Name = "Rizz", Icon = "rbxassetid://4483345998", PremiumOnly = false })
-local Tab2 = Window:MakeTab({ Name = "Roasts", Icon = "rbxassetid://4483345998", PremiumOnly = false })
-
--- Function to send chat messages
 local function sendChatMessage(message)
     local chatEvent = game.ReplicatedStorage:FindFirstChild("DefaultChatSystemChatEvents")
     if chatEvent then
         local sayMessageRequest = chatEvent:FindFirstChild("SayMessageRequest")
         if sayMessageRequest then
-            sayMessageRequest:FireServer(message, "All")  -- Send message to chat
-        else
-            warn("SayMessageRequest not found!")
+            sayMessageRequest:FireServer(message, "All")
         end
-    else
-        warn("Chat system not found!")
     end
 end
 
--- Rizz Lines
-Tab1:AddButton({ Name = "Are you a magician? Because whenever I look at you, everyone else disappears.", Callback = function() 
-    sendChatMessage("Are you a magician? Because whenever I look at you, everyone else disappears.")
-end })
+-- Rizz Lines in English
+local rizzLinesEN = {
+    "Are you a magician? Because whenever I look at you, everyone else disappears.",
+    "Do you have a map? Because I keep getting lost in your eyes.",
+    "Is your name Google? Because you have everything I’m searching for.",
+    "Do you believe in love at first sight, or should I walk by again?",
+    "Excuse me, but I think you dropped something: my jaw!",
+    "Are you Wi-Fi? Because I'm feeling a connection.",
+    "If beauty were time, you'd be an eternity.",
+    "Are you a parking ticket? Because you've got 'FINE' written all over you.",
+    "If you were a vegetable, you'd be a cute-cumber!",
+    "Is your dad a boxer? Because you're a knockout!",
+    "If you were a fruit, you'd be a fine-apple.",
+    "Are you French? Because Eiffel for you.",
+    "You must be tired because you've been running through my mind all day.",
+    "If looks could kill, you'd be a weapon of mass destruction.",
+    "Do you have a Band-Aid? Because I just scraped my knee falling for you.",
+    "Can I follow you home? Because my parents always told me to follow my dreams.",
+    "Are you a time traveler? Because I can see you in my future.",
+    "Is it hot in here or is it just you?",
+    "Your hand looks heavy—can I hold it for you?",
+    "You must be a magician because every time I look at you, everyone else disappears.",
+    "Is there an airport nearby or is that just my heart taking off?",
+    "Can you lend me a kiss? I promise I'll give it back.",
+    "If you were words on a page, you'd be the fine print.",
+    "Do you have a sunburn, or are you always this hot?",
+    "Are you an angel? Because heaven is missing one.",
+    "Do you know if there are any Wi-Fi signals around here? Because I'm feeling a connection."
+}
 
-Tab1:AddButton({ Name = "Do you have a map? Because I keep getting lost in your eyes.", Callback = function() 
-    sendChatMessage("Do you have a map? Because I keep getting lost in your eyes.")
-end })
+for _, line in ipairs(rizzLinesEN) do
+    TabRizzEnglish:AddButton({ Name = line, Callback = function() sendChatMessage(line) end })
+end
 
-Tab1:AddButton({ Name = "Is your name Wi-Fi? Because I'm really feeling a connection.", Callback = function() 
-    sendChatMessage("Is your name Wi-Fi? Because I'm really feeling a connection.")
-end })
+-- Roast Lines in English
+local roastLinesEN = {
+    "I'd agree with you, but then we'd both be wrong.",
+    "You're like a software update. Whenever I see you, I think, 'Not now.'",
+    "I’d call you a tool, but that implies you’re actually useful.",
+    "You're proof that even evolution makes mistakes.",
+    "I'd explain it to you, but I left my English-to-Dingbat dictionary at home.",
+    "You're the reason God created the middle finger.",
+    "You bring everyone so much joy... when you leave the room.",
+    "If laughter is the best medicine, your face must be curing the world.",
+    "You're not stupid; you just have bad luck when it comes to thinking.",
+    "If I had a dollar for every time I saw someone as annoying as you, I'd be broke.",
+    "I'd call you an idiot, but that would be an insult to all stupid people.",
+    "You're like a cloud. When you disappear, it's a beautiful day.",
+    "You're the human version of a participation trophy.",
+    "If you were any more inbred, you'd be a sandwich.",
+    "You have the right to remain silent because whatever you say will probably be stupid anyway.",
+    "You're not ugly; you're just... visually challenged.",
+    "I'd explain it to you, but I don't have any crayons.",
+    "You're like a software bug. You just keep popping up everywhere.",
+    "You look like something that came out of a slow cooker.",
+    "You're like a slinky; not really good for much, but you bring a smile when you fall down the stairs.",
+    "You're the reason we have warning labels.",
+    "I would make a joke about your face, but that would be cruel.",
+    "You're like a software crash—always unexpected and never welcome."
+}
 
-Tab1:AddButton({ Name = "Are you a parking ticket? Because you've got 'FINE' written all over you.", Callback = function() 
-    sendChatMessage("Are you a parking ticket? Because you've got 'FINE' written all over you.")
-end })
+for _, line in ipairs(roastLinesEN) do
+    TabRoastEnglish:AddButton({ Name = line, Callback = function() sendChatMessage(line) end })
+end
 
-Tab1:AddButton({ Name = "If you were a vegetable, you’d be a cute-cumber!", Callback = function() 
-    sendChatMessage("If you were a vegetable, you’d be a cute-cumber!")
-end })
+-- Rizz Lines in Spanish
+local rizzLinesES = {
+    "¿Eres un mago? Porque cuando te miro, los demás desaparecen.",
+    "¿Tienes un mapa? Porque me pierdo en tus ojos.",
+    "¿Tu nombre es Google? Porque tienes todo lo que busco.",
+    "¿Crees en el amor a primera vista, o debo pasar otra vez?",
+    "Perdona, creo que se te ha caído algo: ¡mi mandíbula!",
+    "¿Eres Wi-Fi? Porque siento una conexión.",
+    "Si la belleza fuera tiempo, serías una eternidad.",
+    "¿Eres una multa de aparcamiento? Porque tienes 'FINO' escrito por todas partes.",
+    "Si fueras una verdura, ¡serías un pepinillo lindo!",
+    "¿Tu papá es boxeador? Porque eres un nocaut.",
+    "Si fueras una fruta, ¡serías una piña linda!",
+    "¿Eres francés? Porque he caído por ti.",
+    "Debes estar cansado, porque has estado corriendo por mi mente todo el día.",
+    "Si las miradas pudieran matar, serías un arma de destrucción masiva.",
+    "¿Tienes una curita? Porque me he raspado la rodilla al caer por ti.",
+    "¿Puedo seguirte a casa? Porque mis padres siempre me dijeron que siguiera mis sueños.",
+    "¿Eres un viajero en el tiempo? Porque puedo verte en mi futuro.",
+    "¿Hace calor aquí o solo eres tú?",
+    "Tu mano parece pesada, ¿puedo sostenerla por ti?",
+    "Eres como un mago porque cada vez que te miro, los demás desaparecen.",
+    "¿Hay un aeropuerto cerca o solo es mi corazón despegando?",
+    "¿Me puedes prestar un beso? Prometo que lo devolveré.",
+    "Si fueras palabras en una página, serías la letra pequeña.",
+    "¿Tienes quemaduras de sol o siempre estás tan caliente?",
+    "¿Eres un ángel? Porque el cielo te está extrañando.",
+    "¿Sabes si hay señales de Wi-Fi por aquí? Porque siento una conexión."
+}
 
-Tab1:AddButton({ Name = "Do you believe in love at first sight, or should I walk by again?", Callback = function() 
-    sendChatMessage("Do you believe in love at first sight, or should I walk by again?")
-end })
+for _, line in ipairs(rizzLinesES) do
+    TabRizzSpanish:AddButton({ Name = line, Callback = function() sendChatMessage(line) end })
+end
 
-Tab1:AddButton({ Name = "Are you made of copper and tellurium? Because you're Cu-Te.", Callback = function() 
-    sendChatMessage("Are you made of copper and tellurium? Because you're Cu-Te.")
-end })
+-- Roast Lines in Spanish
+local roastLinesES = {
+    "Estaría de acuerdo contigo, pero entonces los dos estaríamos equivocados.",
+    "Eres como una actualización de software. Cada vez que te veo, pienso: 'No ahora.'",
+    "Te llamaría herramienta, pero eso implica que eres realmente útil.",
+    "Eres la prueba de que incluso la evolución comete errores.",
+    "Te lo explicaría, pero dejé mi diccionario de Inglés a Dingbat en casa.",
+    "Eres la razón por la que Dios creó el dedo medio.",
+    "Le traes a todos tanta alegría... cuando dejas la habitación.",
+    "Si la risa es la mejor medicina, tu cara debe estar curando al mundo.",
+    "No eres estúpido; solo tienes mala suerte cuando piensas.",
+    "Si tuviera un dólar por cada vez que vi a alguien tan molesto como tú, estaría en quiebra.",
+    "Te llamaría idiota, pero eso sería un insulto para todas las personas estúpidas.",
+    "Eres como una nube. Cuando desapareces, es un hermoso día.",
+    "Eres el humano versión de un trofeo de participación.",
+    "Si fueras más consanguíneo, serías un sándwich.",
+    "Tienes derecho a permanecer en silencio porque lo que digas probablemente será estúpido.",
+    "No eres feo; solo eres... visualmente desafiado.",
+    "Te lo explicaría, pero no tengo crayones.",
+    "Eres como un error de software. Solo sigues apareciendo por todas partes.",
+    "Te ves como algo que salió de una olla de cocción lenta.",
+    "Eres como un slinky; no sirves para mucho, pero traes una sonrisa cuando te caes por las escaleras.",
+    "Eres la razón por la que tenemos etiquetas de advertencia.",
+    "Haría una broma sobre tu cara, pero eso sería cruel.",
+    "Eres como un fallo en el software, siempre inesperado y nunca bienvenido."
+}
 
-Tab1:AddButton({ Name = "Is your dad a boxer? Because you’re a knockout!", Callback = function() 
-    sendChatMessage("Is your dad a boxer? Because you’re a knockout!")
-end })
+for _, line in ipairs(roastLinesES) do
+    TabRoastSpanish:AddButton({ Name = line, Callback = function() sendChatMessage(line) end })
+end
 
-Tab1:AddButton({ Name = "If beauty were time, you’d be an eternity.", Callback = function() 
-    sendChatMessage("If beauty were time, you’d be an eternity.")
-end })
+-- Rizz Lines in French
+local rizzLinesFR = {
+    "Es-tu un magicien ? Parce que chaque fois que je te regarde, tout le monde disparaît.",
+    "As-tu une carte ? Parce que je me perds dans tes yeux.",
+    "Ton nom est Google ? Parce que tu as tout ce que je recherche.",
+    "Crois-tu en l'amour au premier regard, ou devrais-je repasser ?",
+    "Excuse-moi, je pense que tu as laissé tomber quelque chose : ma mâchoire !",
+    "Es-tu du Wi-Fi ? Parce que je ressens une connexion.",
+    "Si la beauté était le temps, tu serais une éternité.",
+    "Es-tu un PV ? Parce que tu as 'AMENDE' écrit partout.",
+    "Si tu étais un légume, tu serais un joli concombre !",
+    "Ton père est boxeur ? Parce que tu es un KO !",
+    "Si tu étais un fruit, tu serais un joli ananas.",
+    "Es-tu français ? Parce que j'ai craqué pour toi.",
+    "Tu dois être fatigué, car tu as couru dans mon esprit toute la journée.",
+    "Si les regards pouvaient tuer, tu serais une arme de destruction massive.",
+    "As-tu un bandage ? Parce que je viens de me rattraper en tombant amoureux de toi.",
+    "Puis-je te suivre chez toi ? Parce que mes parents m'ont toujours dit de suivre mes rêves.",
+    "Es-tu un voyageur temporel ? Parce que je te vois dans mon avenir.",
+    "Fait-il chaud ici ou est-ce juste toi ?",
+    "Ta main a l'air lourde, puis-je la tenir pour toi ?",
+    "Tu dois être un magicien, car chaque fois que je te regarde, les autres disparaissent.",
+    "Y a-t-il un aéroport à proximité ou est-ce juste mon cœur qui décolle ?",
+    "Peux-tu me prêter un bisou ? Je promets de le rendre.",
+    "Si tu étais des mots sur une page, tu serais les petites lignes.",
+    "As-tu un coup de soleil ou es-tu toujours aussi chaud ?",
+    "Es-tu un ange ? Parce que le paradis te manque.",
+    "Sais-tu s'il y a des signaux Wi-Fi ici ? Parce que je ressens une connexion."
+}
 
-Tab1:AddButton({ Name = "You must be a campfire, because you're hot and I want s'more.", Callback = function() 
-    sendChatMessage("You must be a campfire, because you're hot and I want s'more.")
-end })
+for _, line in ipairs(rizzLinesFR) do
+    TabRizzFrench:AddButton({ Name = line, Callback = function() sendChatMessage(line) end })
+end
 
-Tab1:AddButton({ Name = "Are you French? Because Eiffel for you.", Callback = function() 
-    sendChatMessage("Are you French? Because Eiffel for you.")
-end })
+-- Roast Lines in French
+local roastLinesFR = {
+    "Je serais d'accord avec toi, mais alors nous aurions tous les deux tort.",
+    "Tu es comme une mise à jour logicielle. Chaque fois que je te vois, je pense : 'Pas maintenant.'",
+    "Je t'appellerais un outil, mais cela impliquerait que tu es réellement utile.",
+    "Tu es la preuve que même l'évolution fait des erreurs.",
+    "Je t'expliquerais, mais j'ai laissé mon dictionnaire Anglais à Dingbat chez moi.",
+    "Tu es la raison pour laquelle Dieu a créé le doigt d'honneur.",
+    "Tu apportes tellement de joie à tout le monde... quand tu quittes la pièce.",
+    "Si le rire est le meilleur médicament, ton visage doit guérir le monde.",
+    "Tu n'es pas stupide ; tu as juste de la malchance quand il s'agit de penser.",
+    "Si j'avais un dollar pour chaque fois que je voyais quelqu'un d'aussi ennuyeux que toi, je serais en faillite.",
+    "Je t'appellerais idiot, mais ce serait une insulte à toutes les personnes stupides.",
+    "Tu es comme un nuage. Quand tu disparais, c'est une belle journée.",
+    "Tu es la version humaine d'un trophée de participation.",
+    "Si tu étais plus consanguin, tu serais un sandwich.",
+    "Tu as le droit de rester silencieux car tout ce que tu diras sera probablement stupide.",
+    "Tu n'es pas laid ; tu es juste... visuellement défié.",
+    "Je t'expliquerais, mais je n'ai pas de crayons.",
+    "Tu es comme un bug logiciel. Tu continues juste à apparaître partout.",
+    "Tu ressembles à quelque chose qui vient d'une mijoteuse.",
+    "Tu es comme un slinky ; tu ne sers pas à grand-chose, mais tu fais sourire quand tu tombes dans les escaliers.",
+    "Tu es la raison pour laquelle nous avons des étiquettes d'avertissement.",
+    "Je ferais une blague sur ton visage, mais ce serait cruel.",
+    "Tu es comme un crash logiciel : toujours inattendu et jamais le bienvenu."
+}
 
-Tab1:AddButton({ Name = "If you were a fruit, you’d be a fine-apple.", Callback = function() 
-    sendChatMessage("If you were a fruit, you’d be a fine-apple.")
-end })
+for _, line in ipairs(roastLinesFR) do
+    TabRoastFrench:AddButton({ Name = line, Callback = function() sendChatMessage(line) end })
+end
 
-Tab1:AddButton({ Name = "Is your name Google? Because you have everything I’m searching for.", Callback = function() 
-    sendChatMessage("Is your name Google? Because you have everything I’m searching for.")
-end })
+-- Rizz Lines in German
+local rizzLinesDE = {
+    "Bist du ein Magier? Denn jedes Mal, wenn ich dich anschaue, verschwinden alle anderen.",
+    "Hast du eine Karte? Denn ich verliere mich in deinen Augen.",
+    "Heißt du Google? Denn du hast alles, wonach ich suche.",
+    "Glaubst du an Liebe auf den ersten Blick, oder sollte ich nochmal vorbeigehen?",
+    "Entschuldigung, aber ich glaube, du hast etwas fallen lassen: meinen Kiefer!",
+    "Bist du WLAN? Denn ich fühle eine Verbindung.",
+    "Wenn Schönheit Zeit wäre, wärst du eine Ewigkeit.",
+    "Bist du ein Parkticket? Denn du hast 'FEIN' überall stehen.",
+    "Wenn du ein Gemüse wärst, wärst du eine süße Gurke!",
+    "Ist dein Vater Boxer? Denn du bist ein Knockout!",
+    "Wenn du eine Frucht wärst, wärst du eine süße Ananas.",
+    "Bist du Franzose? Denn ich habe mich in dich verliebt.",
+    "Du musst müde sein, denn du bist mir den ganzen Tag durch den Kopf gegangen.",
+    "Wenn Blicke töten könnten, wärst du eine Massenvernichtungswaffe.",
+    "Hast du ein Pflaster? Denn ich habe mich gerade beim Fallen für dich verletzt.",
+    "Darf ich dir nach Hause folgen? Denn meine Eltern haben mir immer gesagt, ich solle meinen Träumen folgen.",
+    "Bist du ein Zeitreisender? Denn ich sehe dich in meiner Zukunft.",
+    "Ist es hier heiß oder bist nur du das?",
+    "Deine Hand sieht schwer aus, darf ich sie für dich halten?",
+    "Du bist wie ein Zauberer, denn jedes Mal, wenn ich dich anschaue, verschwinden die anderen.",
+    "Gibt es hier einen Flughafen oder hebt einfach mein Herz ab?",
+    "Kannst du mir einen Kuss leihen? Ich verspreche, ich gebe ihn zurück.",
+    "Wenn du Worte auf einer Seite wärst, wärst du die Fußnote.",
+    "Hast du einen Sonnenbrand oder bist du immer so heiß?",
+    "Bist du ein Engel? Denn der Himmel vermisst dich.",
+    "Weißt du, ob es hier WLAN gibt? Denn ich fühle eine Verbindung."
+}
 
-Tab1:AddButton({ Name = "Can you lend me a kiss? I promise I’ll give it back.", Callback = function() 
-    sendChatMessage("Can you lend me a kiss? I promise I’ll give it back.")
-end })
+for _, line in ipairs(rizzLinesDE) do
+    TabRizzGerman:AddButton({ Name = line, Callback = function() sendChatMessage(line) end })
+end
 
-Tab1:AddButton({ Name = "If looks could kill, you’d be a weapon of mass destruction.", Callback = function() 
-    sendChatMessage("If looks could kill, you’d be a weapon of mass destruction.")
-end })
+-- Roast Lines in German
+local roastLinesDE = {
+    "Ich wäre mit dir einverstanden, aber dann hätten wir beide Unrecht.",
+    "Du bist wie ein Software-Update. Jedes Mal, wenn ich dich sehe, denke ich: 'Nicht jetzt.'",
+    "Ich würde dich ein Werkzeug nennen, aber das würde bedeuten, dass du wirklich nützlich bist.",
+    "Du bist der Beweis, dass die Evolution Fehler macht.",
+    "Ich würde es dir erklären, aber ich habe mein Englisch-Wörterbuch bei Dingbat vergessen.",
+    "Du bist der Grund, warum Gott den Mittelfinger erschaffen hat.",
+    "Du bringst allen so viel Freude... wenn du den Raum verlässt.",
+    "Wenn Lachen die beste Medizin ist, muss dein Gesicht die Welt heilen.",
+    "Du bist nicht dumm; du hast nur Pech beim Denken.",
+    "Wenn ich einen Dollar hätte, jedes Mal, wenn ich jemanden so nervig wie dich sehe, wäre ich pleite.",
+    "Ich würde dich Idiot nennen, aber das wäre eine Beleidigung für alle dummen Menschen.",
+    "Du bist wie eine Wolke. Wenn du verschwindest, ist es ein schöner Tag.",
+    "Du bist die menschliche Version eines Teilnahmepreises.",
+    "Wenn du mehr Verwandtschaft hättest, wärest du ein Sandwich.",
+    "Du hast das Recht, schweigen zu bleiben, denn was auch immer du sagst, wird wahrscheinlich dumm sein.",
+    "Du bist nicht hässlich; du bist nur... visuell herausgefordert.",
+    "Ich würde es dir erklären, aber ich habe keine Buntstifte.",
+    "Du bist wie ein Softwarefehler. Du tauchst einfach überall auf.",
+    "Du siehst aus wie etwas, das aus einem Slow Cooker kommt.",
+    "Du bist wie ein Slinky; du bist nicht sehr nützlich, aber du bringst ein Lächeln, wenn du die Treppe hinunterfällst.",
+    "Du bist der Grund, warum wir Warnhinweise haben.",
+    "Ich würde einen Witz über dein Gesicht machen, aber das wäre grausam.",
+    "Du bist wie ein Software-Absturz; immer unerwartet und nie willkommen."
+}
 
-Tab1:AddButton({ Name = "Is your heart a prison? Because I want to be sentenced for life.", Callback = function() 
-    sendChatMessage("Is your heart a prison? Because I want to be sentenced for life.")
-end })
+for _, line in ipairs(roastLinesDE) do
+    TabRoastGerman:AddButton({ Name = line, Callback = function() sendChatMessage(line) end })
+end
 
-Tab1:AddButton({ Name = "I must be a snowflake because I've fallen for you.", Callback = function() 
-    sendChatMessage("I must be a snowflake because I've fallen for you.")
-end })
+-- Rizz Lines in Italian
+local rizzLinesIT = {
+    "Sei un mago? Perché ogni volta che ti guardo, tutti gli altri spariscono.",
+    "Hai una mappa? Perché mi perdo nei tuoi occhi.",
+    "Il tuo nome è Google? Perché hai tutto ciò che cerco.",
+    "Credi nell'amore a prima vista o dovrei passare di nuovo?",
+    "Scusa, credo che tu abbia lasciato cadere qualcosa: la mia mascella!",
+    "Sei Wi-Fi? Perché sento una connessione.",
+    "Se la bellezza fosse tempo, saresti un'eternità.",
+    "Sei un parcheggio? Perché hai 'MULTA' scritto ovunque.",
+    "Se fossi una verdura, saresti un bel cetriolo!",
+    "Tuo padre è un pugile? Perché sei un knock-out.",
+    "Se fossi un frutto, saresti un bel ananas.",
+    "Sei francese? Perché mi sono innamorato di te.",
+    "Devi essere stanco, perché mi hai fatto correre nella mia mente tutto il giorno.",
+    "Se gli sguardi potessero uccidere, saresti un'arma di distruzione di massa.",
+    "Hai un cerotto? Perché mi sono graffiato il ginocchio cadendo per te.",
+    "Posso seguirti a casa? Perché i miei genitori mi hanno sempre detto di seguire i miei sogni.",
+    "Sei un viaggiatore nel tempo? Perché ti vedo nel mio futuro.",
+    "Fa caldo qui o sei solo tu?",
+    "La tua mano sembra pesante, posso tenerla per te?",
+    "Sei come un mago perché ogni volta che ti guardo, gli altri scompaiono.",
+    "C'è un aeroporto qui vicino o è solo il mio cuore che decolla?",
+    "Puoi prestarmi un bacio? Prometto che lo riporterò.",
+    "Se fossi parole su una pagina, saresti la nota a piè di pagina.",
+    "Hai scottature solari o sei sempre così caldo?",
+    "Sei un angelo? Perché il cielo ti sta mancando.",
+    "Sai se ci sono segnali Wi-Fi qui? Perché sento una connessione."
+}
 
-Tab1:AddButton({ Name = "You must be tired because you’ve been running through my mind all day.", Callback = function() 
-    sendChatMessage("You must be tired because you’ve been running through my mind all day.")
-end })
+for _, line in ipairs(rizzLinesIT) do
+    TabRizzItalian:AddButton({ Name = line, Callback = function() sendChatMessage(line) end })
+end
 
-Tab1:AddButton({ Name = "Are you a loan from a bank? Because you have my interest!", Callback = function() 
-    sendChatMessage("Are you a loan from a bank? Because you have my interest!")
-end })
+-- Roast Lines in Italian
+local roastLinesIT = {
+    "Sarei d'accordo con te, ma allora avremmo entrambi torto.",
+    "Sei come un aggiornamento software. Ogni volta che ti vedo, penso: 'Non ora.'",
+    "Ti chiamerei uno strumento, ma questo significherebbe che sei davvero utile.",
+    "Sei la prova che anche l'evoluzione fa errori.",
+    "Te lo spiegherei, ma ho lasciato il mio dizionario di inglese a Dingbat a casa.",
+    "Sei il motivo per cui Dio ha creato il dito medio.",
+    "Porti tanta gioia a tutti... quando lasci la stanza.",
+    "Se ridere è la migliore medicina, il tuo viso deve guarire il mondo.",
+    "Non sei stupido; hai solo sfortuna quando pensi.",
+    "Se avessi un dollaro per ogni volta che ho visto qualcuno così noioso come te, sarei in bancarotta.",
+    "Ti chiamerei idiota, ma sarebbe un insulto per tutte le persone stupide.",
+    "Sei come una nuvola. Quando scompari, è una bella giornata.",
+    "Sei la versione umana di un trofeo di partecipazione.",
+    "Se fossi più consanguineo, saresti un panino.",
+    "Hai il diritto di rimanere in silenzio perché qualunque cosa tu dica sarà probabilmente stupida.",
+    "Non sei brutto; sei solo... visivamente sfidato.",
+    "Te lo spiegherei, ma non ho pastelli.",
+    "Sei come un errore software. Continui a comparire ovunque.",
+    "Sembri qualcosa uscito da una pentola a cottura lenta.",
+    "Sei come uno slinky; non servi a molto, ma fai sorridere quando cadi dalle scale.",
+    "Sei il motivo per cui abbiamo etichette di avvertimento.",
+    "Farei una battuta sul tuo viso, ma sarebbe crudele.",
+    "Sei come un crash software, sempre inaspettato e mai benvenuto."
+}
 
-Tab1:AddButton({ Name = "Do you have a Band-Aid? Because I just scraped my knee falling for you.", Callback = function() 
-    sendChatMessage("Do you have a Band-Aid? Because I just scraped my knee falling for you.")
-end })
+for _, line in ipairs(roastLinesIT) do
+    TabRoastItalian:AddButton({ Name = line, Callback = function() sendChatMessage(line) end })
+end
 
--- Roast Lines
-Tab2:AddButton({ Name = "You're like a broken pencil; pointless.", Callback = function() 
-    sendChatMessage("You're like a broken pencil; pointless.")
-end })
+-- Rizz Lines in Japanese
+local rizzLinesJP = {
+    "君は魔法使いですか？だって君を見るたびに、みんな消えちゃうから。",
+    "地図を持っていますか？だって君の目に迷い込んじゃったから。",
+    "君の名前はGoogleですか？だって君は私が探しているものすべてを持っているから。",
+    "一目惚れを信じますか、それとももう一度通り過ぎるべきですか？",
+    "すみません、何かを落としたみたい。私の顎が！",
+    "君はWi-Fiですか？だって繋がりを感じるから。",
+    "美しさが時間なら、君は永遠そのものだ。",
+    "君は駐車場ですか？だって「罰金」が至る所に書いてあるから。",
+    "君が野菜なら、美しいきゅうりだね！",
+    "君のお父さんはボクサー？だって君はノックアウトだもの。",
+    "君が果物なら、美しいパイナップルだね。",
+    "君はフランス人？だって私は君に恋しちゃったから。",
+    "君は疲れてる？だって一日中君のことを考えていたから。",
+    "もし視線が殺人だったら、君は大量破壊兵器だ。",
+    "絆創膏持ってる？だって君のために転んで膝をすりむいちゃったから。",
+    "君の家についていってもいい？だって両親がいつも夢を追えって言ってたから。",
+    "君は時間旅行者？だって君が未来に見えるから。",
+    "ここは暑い？それとも君だけが熱いの？",
+    "君の手は重そうだね。私が持ってあげる？",
+    "君は魔法使いだね。だって君を見るたびに、他の人が消えちゃうから。",
+    "ここに空港はある？それとも私の心が離陸してるだけ？",
+    "キスを貸してくれる？絶対に返すから。",
+    "君がページの言葉だったら、フッターだよ。",
+    "日焼けしてる？それともいつもこんなに熱いの？",
+    "君は天使？だって空が君を求めてるから。",
+    "ここにWi-Fiがあるか知ってる？だって繋がりを感じるから。"
+}
 
-Tab2:AddButton({ Name = "You're like a cloud; when you disappear, it's a beautiful day.", Callback = function() 
-    sendChatMessage("You're like a cloud; when you disappear, it's a beautiful day.")
-end })
+for _, line in ipairs(rizzLinesJP) do
+    TabRizzJapanese:AddButton({ Name = line, Callback = function() sendChatMessage(line) end })
+end
 
-Tab2:AddButton({ Name = "You're like a software update; whenever I see you, I think 'Not now'.", Callback = function() 
-    sendChatMessage("You're like a software update; whenever I see you, I think 'Not now'.")
-end })
+-- Roast Lines in Japanese
+local roastLinesJP = {
+    "君に同意することはできるけど、そうしたらお互い間違ってることになる。",
+    "君はソフトウェアのアップデートみたいだ。君を見るたびに「今じゃない」って思う。",
+    "君を道具と呼びたいけど、それは君が本当に役立っているということを意味するから。",
+    "君は進化がミスをする証拠だ。",
+    "説明してあげたいけど、Dingbatに英語の辞書を忘れちゃった。",
+    "君は神が中指を作った理由だ。",
+    "君はみんなに喜びをもたらす…君が部屋を出るときだけ。",
+    "笑いが最高の薬なら、君の顔は世界を癒すに違いない。",
+    "君は愚かじゃない。ただ考えるのが運が悪いだけだ。",
+    "君のようにうざい人を見たら、1ドルあったら、私は破産してる。",
+    "君を馬鹿にしたいけど、それはすべての馬鹿に対する侮辱になるから。",
+    "君は雲のようだ。君が消えると、良い日になる。",
+    "君は参加賞の人間版だ。",
+    "もっと血縁があったら、君はサンドイッチだ。",
+    "君には黙っている権利がある。だって君が言うことはたいてい愚かだから。",
+    "君はブスじゃない；君はただ…視覚的に挑戦されているだけ。",
+    "説明したいけど、クレヨンがない。",
+    "君はソフトウェアのバグのようだ。どこにでも現れる。",
+    "君はスロークッカーから出てきた何かのように見える。",
+    "君はスリンキーのようだ。あまり役に立たないけど、階段から落ちると笑顔になる。",
+    "君は警告ラベルが必要な理由だ。",
+    "君の顔についてジョークを言いたいけど、それは残酷だ。",
+    "君はソフトウェアのクラッシュのようだ；いつも予期せず、決して歓迎されない。"
+}
 
-Tab2:AddButton({ Name = "You're like a broken clock; right twice a day, but mostly wrong.", Callback = function() 
-    sendChatMessage("You're like a broken clock; right twice a day, but mostly wrong.")
-end })
+for _, line in ipairs(roastLinesJP) do
+    TabRoastJapanese:AddButton({ Name = line, Callback = function() sendChatMessage(line) end })
+end
 
-Tab2:AddButton({ Name = "You're like a light switch; even when you’re on, you’re off.", Callback = function() 
-    sendChatMessage("You're like a light switch; even when you’re on, you’re off.")
-end })
+-- Rizz Lines in Chinese
+local rizzLinesCN = {
+    "你是魔法师吗？因为每次我看你，其他人就消失了。",
+    "你有地图吗？因为我在你眼中迷路了。",
+    "你的名字是谷歌吗？因为你有我寻找的一切。",
+    "你相信一见钟情吗，还是我应该再走一次？",
+    "抱歉，我想你掉了什么：我的下巴！",
+    "你是Wi-Fi吗？因为我感到一种连接。",
+    "如果美丽是时间，你就是永恒。",
+    "你是停车场吗？因为到处都有‘罚单’。",
+    "如果你是一种蔬菜，你一定是个美丽的黄瓜！",
+    "你爸爸是拳击手吗？因为你是一记重击！",
+    "如果你是一种水果，你一定是个美丽的菠萝。",
+    "你是法国人吗？因为我爱上了你。",
+    "你一定累了，因为我整天在想你。",
+    "如果眼神可以杀人，你就是大规模杀伤性武器。",
+    "你有创可贴吗？因为我刚摔倒，膝盖受伤了。",
+    "我可以跟着你回家吗？因为我的父母总是告诉我追随我的梦想。",
+    "你是时间旅行者吗？因为我在未来看到了你。",
+    "这里热吗，还是只有你热？",
+    "你的手看起来很重，我可以帮你拿吗？",
+    "你就像魔法师，因为每次我看你，其他人就消失了。",
+    "这里有机场吗，还是我的心在起飞？",
+    "可以借我一个吻吗？我保证会还给你。",
+    "如果你是书页上的词，你就是脚注。",
+    "你有晒伤吗，还是你总是这么热？",
+    "你是天使吗？因为天堂在想念你。",
+    "你知道这里有Wi-Fi吗？因为我感到一种连接。"
+}
 
-Tab2:AddButton({ Name = "You're so dense, light bends around you.", Callback = function() 
-    sendChatMessage("You're so dense, light bends around you.")
-end })
+for _, line in ipairs(rizzLinesCN) do
+    TabRizzChinese:AddButton({ Name = line, Callback = function() sendChatMessage(line) end })
+end
 
-Tab2:AddButton({ Name = "If I had a dollar for every time I saw a face like yours, I'd keep it.", Callback = function() 
-    sendChatMessage("If I had a dollar for every time I saw a face like yours, I'd keep it.")
-end })
+-- Roast Lines in Chinese
+local roastLinesCN = {
+    "我可以同意你，但那样我们都错了。",
+    "你就像软件更新。每次我看到你，我都想：'不是现在。'",
+    "我想叫你个工具，但这意味着你真的有用。",
+    "你是进化错误的证明。",
+    "我想给你解释，但我把我的英语词典留在了Dingbat。",
+    "你是上帝创造中指的原因。",
+    "你给每个人带来了这么多快乐……当你离开房间时。",
+    "如果笑是最好的药，你的脸一定能治愈世界。",
+    "你并不笨；你只是思考时运气不好。",
+    "如果我每次看到像你这样讨厌的人都有一美元，我就破产了。",
+    "我想叫你傻瓜，但那会侮辱所有傻人。",
+    "你就像云一样。如果你消失，今天就是个好日子。",
+    "你是人类版的参与奖。",
+    "如果你有更多血缘关系，你就是个三明治。",
+    "你有权保持沉默，因为无论你说什么，可能都是愚蠢的。",
+    "你并不丑；你只是……视觉上受到挑战。",
+    "我想给你解释，但我没有蜡笔。",
+    "你就像软件错误，随处出现。",
+    "你看起来像是从慢炖锅里出来的东西。",
+    "你就像斯林基；你并不是很有用，但你从楼梯上掉下来时让人微笑。",
+    "你是我们有警告标签的原因。",
+    "我想讲个关于你脸的笑话，但那太残忍了。",
+    "你就像软件崩溃；总是意外发生，从未受欢迎。"
+}
 
-Tab2:AddButton({ Name = "You're the reason God created the middle finger.", Callback = function() 
-    sendChatMessage("You're the reason God created the middle finger.")
-end })
+for _, line in ipairs(roastLinesCN) do
+    TabRoastChinese:AddButton({ Name = line, Callback = function() sendChatMessage(line) end })
+end
 
-Tab2:AddButton({ Name = "You bring everyone so much joy… when you leave the room.", Callback = function() 
-    sendChatMessage("You bring everyone so much joy… when you leave the room.")
-end })
+-- Rizz Lines in Korean
+local rizzLinesKR = {
+    "마법사세요? 왜냐하면 당신을 볼 때마다 다른 사람들은 사라지거든요.",
+    "지도 있어요? 왜냐하면 당신의 눈에서 길을 잃었거든요.",
+    "당신의 이름이 구글인가요? 왜냐하면 당신은 제가 찾고 있는 모든 것을 가지고 있으니까요.",
+    "첫눈에 반하는 걸 믿나요, 아니면 제가 다시 지나가야 할까요?",
+    "미안해요, 당신이 떨어뜨린 것 같아요: 제 턱이요!",
+    "당신은 와이파이인가요? 연결감을 느끼고 있어요.",
+    "아름다움이 시간이라면, 당신은 영원이에요.",
+    "당신은 주차장인가요? 왜냐하면 여기저기 ‘벌금’이 적혀있거든요.",
+    "당신이 채소라면, 아름다운 오이일 거예요!",
+    "당신의 아버지는 권투선수인가요? 당신은 강타니까요!",
+    "당신이 과일이라면, 아름다운 파인애플일 거예요.",
+    "당신은 프랑스인이에요? 왜냐하면 제가 당신에게 사랑에 빠졌거든요.",
+    "당신은 피곤한가요? 하루 종일 당신에 대해 생각했거든요.",
+    "눈빛이 살인을 할 수 있다면, 당신은 대량살상무기예요.",
+    "반창고 있어요? 제가 넘어져서 무릎이 까졌거든요.",
+    "당신 집에 따라가도 될까요? 왜냐하면 제 부모님이 항상 꿈을 좇으라고 하거든요.",
+    "당신은 시간 여행자예요? 왜냐하면 당신이 미래에서 보이거든요.",
+    "여기 더워요? 아니면 당신만 더운 건가요?",
+    "당신의 손이 무거워 보이네요. 제가 들어드릴까요?",
+    "당신은 마법사 같아요. 왜냐하면 당신을 볼 때마다 다른 사람들이 사라지니까요.",
+    "여기 공항이 있나요? 아니면 제 마음이 이륙하고 있는 건가요?",
+    "키스 하나 빌려줄 수 있어요? 꼭 갚을게요.",
+    "당신이 페이지의 단어라면, 각주예요.",
+    "햇볕에 탄 건가요? 아니면 항상 이렇게 뜨거운 건가요?",
+    "당신은 천사인가요? 왜냐하면 하늘이 당신을 그리워하니까요.",
+    "여기 와이파이 있는지 아세요? 연결을 느끼거든요."
+}
 
-Tab2:AddButton({ Name = "You're so ugly, when you were born, the doctor slapped your parents.", Callback = function() 
-    sendChatMessage("You're so ugly, when you were born, the doctor slapped your parents.")
-end })
+for _, line in ipairs(rizzLinesKR) do
+    TabRizzKorean:AddButton({ Name = line, Callback = function() sendChatMessage(line) end })
+end
 
-Tab2:AddButton({ Name = "I'd agree with you, but then we'd both be wrong.", Callback = function() 
-    sendChatMessage("I'd agree with you, but then we'd both be wrong.")
-end })
+-- Roast Lines in Korean
+local roastLinesKR = {
+    "너에게 동의할 수 있지만, 그럼 우리는 둘 다 틀린거야.",
+    "너는 소프트웨어 업데이트 같아. 너를 볼 때마다 ‘지금 아니야’라고 생각해.",
+    "너를 도구라고 부르고 싶지만, 그건 네가 정말 유용하다는 걸 의미하니까.",
+    "너는 진화가 실수한 증거야.",
+    "설명해주고 싶지만, 딩밧에 영어 사전을 두고 왔어.",
+    "너는 신이 중지를 만든 이유야.",
+    "너는 모두에게 기쁨을 주는 사람… 네가 방을 떠날 때만.",
+    "웃음이 최고의 약이라면, 너의 얼굴은 세계를 치유할 거야.",
+    "너는 바보가 아니야. 단지 생각할 때 운이 나쁜 것뿐이야.",
+    "너처럼 귀찮은 사람을 보면 1달러가 있었으면, 난 파산했을 거야.",
+    "너를 바보라고 부르고 싶지만, 그건 모든 바보들에 대한 모욕이야.",
+    "너는 구름 같아. 네가 사라지면 좋은 날이 돼.",
+    "너는 참여상 인간판이야.",
+    "더 많은 혈연관계가 있었다면 너는 샌드위치였을 거야.",
+    "너는 침묵할 권리가 있어. 왜냐하면 네가 뭘 말하든 대개는 바보같으니까.",
+    "너는 못생기지 않았어; 단지… 시각적으로 도전받고 있을 뿐이야.",
+    "설명하고 싶지만, 크레용이 없어.",
+    "너는 소프트웨어 버그 같아. 어디에나 나타나.",
+    "너는 슬로우쿠커에서 나온 것처럼 보여.",
+    "너는 스프링과 같아. 별로 유용하진 않지만, 계단에서 떨어지면 미소를 짓게 해.",
+    "너는 경고 라벨이 필요한 이유야.",
+    "너의 얼굴에 대해 농담하고 싶지만, 그건 잔인해.",
+    "너는 소프트웨어 크래시 같아; 항상 예기치 않게 일어나고 절대 환영받지 못해."
+}
 
-Tab2:AddButton({ Name = "You're like a slinky; not really good for much, but you bring a smile when you fall down the stairs.", Callback = function() 
-    sendChatMessage("You're like a slinky; not really good for much, but you bring a smile when you fall down the stairs.")
-end })
+for _, line in ipairs(roastLinesKR) do
+    TabRoastKorean:AddButton({ Name = line, Callback = function() sendChatMessage(line) end })
+end
 
-Tab2:AddButton({ Name = "You have the right to remain silent because whatever you say will probably be stupid anyway.", Callback = function() 
-    sendChatMessage("You have the right to remain silent because whatever you say will probably be stupid anyway.")
-end })
+-- Rizz Lines in Vietnamese
+local rizzLinesVN = {
+    "Bạn có phải là một pháp sư không? Bởi vì mỗi lần tôi nhìn bạn, mọi người khác biến mất.",
+    "Bạn có bản đồ không? Bởi vì tôi đã lạc trong đôi mắt bạn.",
+    "Tên bạn có phải là Google không? Bởi vì bạn có mọi thứ mà tôi đang tìm kiếm.",
+    "Bạn có tin vào tình yêu từ cái nhìn đầu tiên không, hay tôi nên đi qua một lần nữa?",
+    "Xin lỗi, tôi nghĩ bạn làm rơi cái gì đó: hàm của tôi!",
+    "Bạn có phải là Wi-Fi không? Bởi vì tôi cảm thấy một kết nối.",
+    "Nếu vẻ đẹp là thời gian, bạn chính là vĩnh cửu.",
+    "Bạn có phải là một bãi đậu xe không? Bởi vì có ‘phạt’ ở khắp mọi nơi.",
+    "Nếu bạn là một loại rau, chắc chắn bạn sẽ là một quả dưa chuột xinh đẹp!",
+    "Bố bạn có phải là một võ sĩ không? Bởi vì bạn là một cú đấm mạnh mẽ!",
+    "Nếu bạn là một loại trái cây, chắc chắn bạn sẽ là một quả dứa xinh đẹp.",
+    "Bạn có phải là người Pháp không? Bởi vì tôi đã yêu bạn.",
+    "Chắc hẳn bạn mệt mỏi, vì tôi đã nghĩ về bạn cả ngày.",
+    "Nếu ánh nhìn có thể giết người, bạn chính là vũ khí hủy diệt hàng loạt.",
+    "Bạn có băng dán không? Bởi vì tôi vừa ngã và làm trầy xước đầu gối.",
+    "Tôi có thể đi theo bạn về nhà không? Bởi vì bố mẹ tôi luôn nói theo đuổi giấc mơ của mình.",
+    "Bạn có phải là một du khách thời gian không? Bởi vì tôi thấy bạn trong tương lai.",
+    "Ở đây có nóng không? Hay chỉ có bạn nóng thôi?",
+    "Tay bạn trông nặng nề. Tôi có thể giúp bạn cầm không?",
+    "Bạn giống như một pháp sư. Bởi vì mỗi lần tôi nhìn bạn, mọi người khác đều biến mất.",
+    "Ở đây có sân bay không? Hay là trái tim tôi đang cất cánh?",
+    "Cho tôi mượn một nụ hôn nhé? Tôi hứa sẽ trả lại cho bạn.",
+    "Nếu bạn là từ trong sách, bạn sẽ là chân trang.",
+    "Bạn có bị cháy nắng không? Hay bạn luôn nóng như vậy?",
+    "Bạn có phải là một thiên thần không? Bởi vì thiên đường đang nhớ bạn.",
+    "Bạn có biết ở đây có Wi-Fi không? Bởi vì tôi cảm thấy một kết nối."
+}
 
-Tab2:AddButton({ Name = "You're proof that even evolution makes mistakes.", Callback = function() 
-    sendChatMessage("You're proof that even evolution makes mistakes.")
-end })
+for _, line in ipairs(rizzLinesVN) do
+    TabRizzVietnamese:AddButton({ Name = line, Callback = function() sendChatMessage(line) end })
+end
 
-Tab2:AddButton({ Name = "You're so full of it, you're starting to smell.", Callback = function() 
-    sendChatMessage("You're so full of it, you're starting to smell.")
-end })
+-- Roast Lines in Vietnamese
+local roastLinesVN = {
+    "Tôi có thể đồng ý với bạn, nhưng như vậy chúng ta đều sai.",
+    "Bạn giống như một bản cập nhật phần mềm. Mỗi lần tôi thấy bạn, tôi nghĩ: 'Không phải bây giờ.'",
+    "Tôi muốn gọi bạn là một công cụ, nhưng điều đó có nghĩa là bạn thực sự hữu ích.",
+    "Bạn là bằng chứng cho sự tiến hóa sai lầm.",
+    "Tôi muốn giải thích cho bạn, nhưng tôi đã quên từ điển tiếng Anh ở Dingbat.",
+    "Bạn là lý do Chúa tạo ra ngón giữa.",
+    "Bạn mang lại niềm vui cho mọi người… chỉ khi bạn rời khỏi phòng.",
+    "Nếu tiếng cười là loại thuốc tốt nhất, thì khuôn mặt của bạn chắc chắn có thể chữa lành thế giới.",
+    "Bạn không ngu ngốc đâu; chỉ là bạn không may mắn khi nghĩ đến.",
+    "Nếu tôi có 1 đô la mỗi lần nhìn thấy một người phiền phức như bạn, tôi đã phá sản.",
+    "Tôi muốn gọi bạn là kẻ ngốc, nhưng điều đó sẽ xúc phạm tất cả những kẻ ngốc.",
+    "Bạn giống như một đám mây. Khi bạn biến mất, đó sẽ là một ngày đẹp trời.",
+    "Bạn là phiên bản người nhận giải an ủi.",
+    "Nếu bạn có nhiều quan hệ huyết thống hơn, có lẽ bạn sẽ là một chiếc bánh sandwich.",
+    "Bạn có quyền giữ im lặng. Bởi vì cho dù bạn nói gì, hầu như lúc nào cũng nghe như kẻ ngốc.",
+    "Bạn không xấu xí đâu; chỉ là… bạn đang gặp khó khăn về mặt thị giác.",
+    "Tôi muốn giải thích, nhưng tôi không có bút chì.",
+    "Bạn giống như một lỗi phần mềm. Luôn xuất hiện ở mọi nơi.",
+    "Bạn trông giống như vừa ra từ một nồi hầm chậm.",
+    "Bạn giống như một cái lò xo. Không có ích lợi gì nhưng khi ngã cầu thang, bạn khiến tôi cười.",
+    "Bạn là lý do tại sao có nhãn cảnh báo.",
+    "Tôi muốn đùa về khuôn mặt của bạn, nhưng đó là sự tàn nhẫn.",
+    "Bạn giống như một vụ tai nạn phần mềm; luôn xảy ra bất ngờ và không bao giờ được chào đón."
+}
 
-Tab2:AddButton({ Name = "You're like a candle in the wind; useless.", Callback = function() 
-    sendChatMessage("You're like a candle in the wind; useless.")
-end })
+for _, line in ipairs(roastLinesVN) do
+    TabRoastVietnamese:AddButton({ Name = line, Callback = function() sendChatMessage(line) end })
+end
 
-Tab2:AddButton({ Name = "You're like a broken compass; you always point in the wrong direction.", Callback = function() 
-    sendChatMessage("You're like a broken compass; you always point in the wrong direction.")
-end })
+-- Rizz Lines in Thai
+local rizzLinesTH = {
+    "คุณเป็นพ่อมดใช่ไหม? เพราะทุกครั้งที่ฉันมองคุณ คนอื่นหายไปหมด.",
+    "คุณมีแผนที่ไหม? เพราะฉันหลงทางในดวงตาของคุณ.",
+    "ชื่อคุณคือ Google หรือเปล่า? เพราะคุณมีทุกอย่างที่ฉันกำลังค้นหา.",
+    "คุณเชื่อในความรักตั้งแต่แรกเห็นหรือเปล่า หรือฉันควรเดินผ่านไปอีกครั้ง?",
+    "ขอโทษนะ ฉันคิดว่าคุณทำของหล่น: คางของฉัน!",
+    "คุณเป็น Wi-Fi หรือเปล่า? เพราะฉันรู้สึกเชื่อมต่อ.",
+    "ถ้าความงามคือเวลา คุณคือความเป็นอมตะ.",
+    "คุณเป็นที่จอดรถหรือเปล่า? เพราะมี 'ค่าปรับ' อยู่ทั่วทุกแห่ง.",
+    "ถ้าคุณเป็นผัก คุณก็คงจะเป็นแตงกวาที่สวยงาม!",
+    "พ่อของคุณเป็นนักชกไหม? เพราะคุณคือหมัดที่รุนแรง!",
+    "ถ้าคุณเป็นผลไม้ คุณก็คงจะเป็นสับปะรดที่สวยงาม.",
+    "คุณเป็นชาวฝรั่งเศสหรือเปล่า? เพราะฉันตกหลุมรักคุณ.",
+    "คุณคงจะเหนื่อย เพราะฉันคิดถึงคุณตลอดทั้งวัน.",
+    "ถ้ามองตาแล้วสามารถฆ่าได้ คุณคืออาวุธทำลายล้างมหาศาล.",
+    "คุณมีผ้าไหม? เพราะฉันล้มลงและทำให้เข่าของฉันถลอก.",
+    "ฉันขอเดินตามคุณกลับบ้านได้ไหม? เพราะพ่อแม่ของฉันมักบอกให้ตามความฝันของตัวเอง.",
+    "คุณเป็นนักเดินทางข้ามเวลาใช่ไหม? เพราะฉันเห็นคุณในอนาคต.",
+    "ที่นี่ร้อนไหม? หรือแค่คุณที่ร้อน?",
+    "มือของคุณดูหนัก ฉันช่วยถือได้ไหม?",
+    "คุณดูเหมือนพ่อมด เพราะทุกครั้งที่ฉันมองคุณ คนอื่นก็หายไป.",
+    "ที่นี่มีสนามบินไหม? หรือใจฉันกำลังบินขึ้น?",
+    "ขอยืมจูบหนึ่งอันได้ไหม? ฉันสัญญาว่าจะคืนให้.",
+    "ถ้าคุณเป็นคำในหน้า คุณจะเป็นหมายเหตุ.",
+    "คุณโดนแดดเผาหรือเปล่า? หรือคุณร้อนแบบนี้เสมอ?",
+    "คุณเป็นนางฟ้าหรือเปล่า? เพราะสวรรค์คิดถึงคุณ.",
+    "คุณรู้ไหมว่าที่นี่มี Wi-Fi? เพราะฉันรู้สึกเชื่อมต่อ."
+}
 
-Tab2:AddButton({ Name = "If laughter is the best medicine, your face must be curing the world.", Callback = function() 
-    sendChatMessage("If laughter is the best medicine, your face must be curing the world.")
-end })
+for _, line in ipairs(rizzLinesTH) do
+    TabRizzThai:AddButton({ Name = line, Callback = function() sendChatMessage(line) end })
+end
 
-OrionLib:Init()
+-- Roast Lines in Thai
+local roastLinesTH = {
+    "ฉันอาจจะเห็นด้วยกับคุณ แต่แบบนั้นเราก็ผิดทั้งคู่.",
+    "คุณเหมือนการอัปเดตซอฟต์แวร์ ทุกครั้งที่ฉันเห็นคุณ ฉันคิดว่า 'ไม่ใช่ตอนนี้.'",
+    "ฉันอยากเรียกคุณว่าบทความ แต่ก็หมายความว่าคุณมีประโยชน์จริงๆ.",
+    "คุณคือหลักฐานว่าการวิวัฒนาการเกิดความผิดพลาด.",
+    "ฉันอยากอธิบายให้คุณฟัง แต่ฉันลืมพจนานุกรมภาษาอังกฤษที่ Dingbat.",
+    "คุณคือเหตุผลที่พระเจ้าสร้างนิ้วกลาง.",
+    "คุณนำความสุขให้ทุกคน… แค่เมื่อคุณออกจากห้อง.",
+    "ถ้าความขำขันคือยาที่ดีที่สุด หน้าเราของคุณก็รักษาโลกได้แน่.",
+    "คุณไม่ได้โง่หรอก; แค่คุณโชคไม่ดีเวลาคิด.",
+    "ถ้าฉันมี 1 ดอลลาร์ทุกครั้งที่เห็นคนที่น่ารำคาญอย่างคุณ ฉันคงล้มละลายไปแล้ว.",
+    "ฉันอยากเรียกคุณว่าโง่ แต่ก็จะดูถูกคนโง่ทั้งหมด.",
+    "คุณเหมือนเมฆ เมื่อคุณหายไป จะเป็นวันที่สดใส.",
+    "คุณคือคนที่ได้รับรางวัลชนะเลิศที่ไม่ต้องแข่งขัน.",
+    "ถ้าคุณมีความสัมพันธ์ทางสายเลือดมากกว่านี้ คุณอาจจะเป็นแซนด์วิช.",
+    "คุณมีสิทธิ์ที่จะเงียบ เพราะไม่ว่าใครพูดอะไรก็มักจะฟังดูโง่.",
+    "คุณไม่อัปลักษณ์หรอก; แค่… คุณมีปัญหาเรื่องการมอง.",
+    "ฉันอยากอธิบายให้ฟัง แต่ฉันไม่มีดินสอ.",
+    "คุณเหมือนข้อผิดพลาดของซอฟต์แวร์ ปรากฏอยู่ทุกที่.",
+    "คุณดูเหมือนเพิ่งออกจากหม้อหุงช้า.",
+    "คุณเหมือนสปริง ไม่ค่อยมีประโยชน์ แต่เมื่อหล่นบันไดก็ทำให้ฉันยิ้มได้.",
+    "คุณคือเหตุผลที่ต้องมีฉลากเตือน.",
+    "ฉันอยากจะพูดเกี่ยวกับหน้าของคุณ แต่ดูเหมือนจะใจร้ายเกินไป.",
+    "คุณเหมือนการชนของซอฟต์แวร์ เกิดขึ้นโดยไม่คาดคิดและไม่เคยได้รับการต้อนรับ."
+}
+
+for _, line in ipairs(roastLinesTH) do
+    TabRoastThai:AddButton({ Name = line, Callback = function() sendChatMessage(line) end })
+end
+
+-- Rizz Lines in Indonesian
+local rizzLinesID = {
+    "Apakah kamu seorang penyihir? Karena setiap kali aku melihatmu, orang lain menghilang.",
+    "Apakah kamu punya peta? Karena aku tersesat dalam tatapanmu.",
+    "Apakah namamu Google? Karena kamu punya segala yang aku cari.",
+    "Apakah kamu percaya cinta pada pandangan pertama, atau aku harus lewat lagi?",
+    "Maaf, aku rasa kamu menjatuhkan sesuatu: daguku!",
+    "Apakah kamu Wi-Fi? Karena aku merasakan koneksi.",
+    "Jika kecantikan adalah waktu, maka kamu adalah keabadian.",
+    "Apakah kamu tempat parkir? Karena ada 'denda' di mana-mana.",
+    "Jika kamu sayuran, kamu pasti timun yang cantik!",
+    "Apakah ayahmu seorang petinju? Karena kamu adalah pukulan yang kuat!",
+    "Jika kamu buah, kamu pasti nanas yang cantik.",
+    "Apakah kamu orang Prancis? Karena aku jatuh cinta padamu.",
+    "Kamu pasti capek, karena aku memikirkanmu sepanjang hari.",
+    "Jika tatapan bisa membunuh, kamu adalah senjata pemusnah massal.",
+    "Apakah kamu punya plester? Karena aku jatuh dan melukai lututku.",
+    "Bolehkah aku mengikutimu pulang? Karena orang tuaku selalu bilang untuk mengejar mimpiku.",
+    "Apakah kamu seorang penjelajah waktu? Karena aku melihatmu di masa depan.",
+    "Apakah di sini panas? Atau hanya kamu yang panas?",
+    "Tanganmu terlihat berat. Boleh aku bantu membawa?",
+    "Kamu seperti penyihir. Karena setiap kali aku melihatmu, orang lain menghilang.",
+    "Apakah di sini ada bandara? Atau hatiku yang sedang terbang?",
+    "Bolehkah aku meminjam satu ciuman? Aku berjanji akan mengembalikannya.",
+    "Jika kamu adalah kata dalam buku, kamu adalah catatan kaki.",
+    "Apakah kamu terbakar sinar matahari? Atau apakah kamu selalu panas seperti ini?",
+    "Apakah kamu seorang malaikat? Karena surga merindukanmu.",
+    "Apakah kamu tahu ada Wi-Fi di sini? Karena aku merasakan koneksi."
+}
+
+for _, line in ipairs(rizzLinesID) do
+    TabRizzIndonesian:AddButton({ Name = line, Callback = function() sendChatMessage(line) end })
+end
+
+-- Roast Lines in Indonesian
+local roastLinesID = {
+    "Aku mungkin setuju denganmu, tetapi dengan begitu kita berdua salah.",
+    "Kamu seperti pembaruan perangkat lunak. Setiap kali aku melihatmu, aku berpikir, 'Tidak sekarang.'",
+    "Aku ingin memanggilmu artikel, tetapi itu berarti kamu punya kegunaan.",
+    "Kamu adalah bukti bahwa evolusi membuat kesalahan.",
+    "Aku ingin menjelaskan, tetapi aku lupa kamus bahasa Inggris di Dingbat.",
+    "Kamu adalah alasan Tuhan menciptakan jari tengah.",
+    "Kamu membawa kebahagiaan bagi semua orang… hanya ketika kamu meninggalkan ruangan.",
+    "Jika lelucon adalah obat terbaik, maka wajahmu akan menyembuhkan dunia.",
+    "Kamu tidak bodoh; hanya saja kamu tidak beruntung saat berpikir.",
+    "Jika aku punya 1 dolar setiap kali melihat orang yang mengganggu seperti kamu, aku pasti sudah bangkrut.",
+    "Aku ingin memanggilmu bodoh, tetapi itu akan merendahkan semua orang bodoh.",
+    "Kamu seperti awan. Ketika kamu menghilang, hari akan menjadi cerah.",
+    "Kamu adalah orang yang mendapatkan penghargaan tanpa harus berkompetisi.",
+    "Jika kamu memiliki lebih banyak hubungan darah, kamu mungkin akan menjadi sandwich.",
+    "Kamu berhak untuk diam. Karena tidak peduli apa yang kamu katakan, itu selalu terdengar bodoh.",
+    "Kamu tidak jelek; hanya saja… kamu mengalami masalah dengan penglihatan.",
+    "Aku ingin menjelaskan, tetapi aku tidak punya pensil.",
+    "Kamu seperti kesalahan perangkat lunak; selalu muncul di mana-mana.",
+    "Kamu terlihat seperti baru keluar dari panci memasak lambat.",
+    "Kamu seperti pegas. Tidak banyak manfaatnya, tetapi saat jatuh dari tangga, itu membuatku tersenyum.",
+    "Kamu adalah alasan ada label peringatan.",
+    "Aku ingin bercanda tentang wajahmu, tetapi itu akan terlalu kejam.",
+    "Kamu seperti kecelakaan perangkat lunak; selalu terjadi secara tak terduga dan tidak pernah disambut."
+}
+
+for _, line in ipairs(roastLinesID) do
+    TabRoastIndonesian:AddButton({ Name = line, Callback = function() sendChatMessage(line) end })
+end
+
+-- Rizz Lines in Filipino
+local rizzLinesPH = {
+    "Ikaw ba ay isang wizard? Kasi sa tuwing tumitingin ako sa'yo, lahat ng tao ay naaalis.",
+    "May mapa ka ba? Kasi naliligaw ako sa mga mata mo.",
+    "Ang pangalan mo ba ay Google? Kasi nasa'yo lahat ng hinahanap ko.",
+    "Naniniwala ka ba sa pag-ibig sa unang tingin, o kailangan ko bang dumaan muli?",
+    "Patawad, iniisip ko na nahulog ka ng isang bagay: ang aking panga!",
+    "Ikaw ba ay Wi-Fi? Kasi nararamdaman kong konektado.",
+    "Kung ang kagandahan ay oras, ikaw ay kawalang-kamatayan.",
+    "Ikaw ba ay isang parking space? Kasi may 'fine' sa lahat ng dako.",
+    "Kung ikaw ay gulay, tiyak na ikaw ay isang magandang pipino!",
+    "Ang tatay mo ba ay isang boksingero? Kasi ikaw ay isang matinding suntok!",
+    "Kung ikaw ay prutas, tiyak na ikaw ay isang magandang pinya.",
+    "Ikaw ba ay isang Pranses? Kasi nahulog ako sa'yo.",
+    "Sige, pagod ka ba? Kasi iniisip kita buong araw.",
+    "Kung ang tingin ay pumatay, ikaw ay isang sandatang pampinsala.",
+    "May band-aid ka ba? Kasi nahulog ako at nadurog ang tuhod ko.",
+    "Pwede bang samahan kita pauwi? Kasi sabi ng mga magulang ko na sundan ang aking mga pangarap.",
+    "Ikaw ba ay isang time traveler? Kasi nakikita kita sa hinaharap.",
+    "Mainit ba dito? O ikaw lang ang mainit?",
+    "Mukhang mabigat ang iyong mga kamay. Maaari ba akong tumulong sa pagbuhat?",
+    "Ikaw ay parang isang wizard. Kasi sa tuwing tumitingin ako sa'yo, lahat ng tao ay nawawala.",
+    "May paliparan ba dito? O ang puso ko ay lumilipad?",
+    "Pwede bang pahiram ng isang halik? Nangako akong ibabalik ito.",
+    "Kung ikaw ay isang salita sa pahina, ikaw ay isang footnote.",
+    "Ikaw ba ay nasunog ng araw? O lagi ka bang ganito kainit?",
+    "Ikaw ba ay isang anghel? Kasi namimiss ka ng langit.",
+    "Alam mo ba na may Wi-Fi dito? Kasi nararamdaman kong konektado."
+}
+
+for _, line in ipairs(rizzLinesPH) do
+    TabRizzFilipino:AddButton({ Name = line, Callback = function() sendChatMessage(line) end })
+end
+
+-- Roast Lines in Filipino
+local roastLinesPH = {
+    "Baka sumang-ayon ako sa'yo, pero sa ganitong paraan pareho tayong mali.",
+    "Parang ikaw ay isang software update. Tuwing nakikita kita, naiisip ko, 'Hindi ngayon.'",
+    "Gusto kong tawagan kang artikulo, pero nangangahulugan iyon na mayroon kang gamit.",
+    "Ikaw ay patunay na ang ebolusyon ay nagkamali.",
+    "Gusto kong ipaliwanag, pero nakalimutan ko ang diksyunaryo ng Ingles sa Dingbat.",
+    "Ikaw ang dahilan kung bakit nilikha ng Diyos ang daliri sa gitna.",
+    "Nagdadala ka ng saya sa lahat… sa oras lang na umalis ka sa kwarto.",
+    "Kung ang mga biro ay ang pinakamahusay na gamot, ang mukha mo ay makapagpapagaling sa mundo.",
+    "Hindi ka bobo; ikaw lang ay walang swerte sa pag-iisip.",
+    "Kung may 1 dolyar ako sa tuwing nakakakita ako ng isang nakakaabala na tulad mo, sigurado akong bankrupt na ako.",
+    "Gusto kong tawagan kang bobo, pero bababaan nito ang lahat ng bobo.",
+    "Parang ikaw ay isang ulap. Kapag nawala ka, magiging maliwanag ang araw.",
+    "Ikaw ang taong nakakakuha ng gantimpala nang hindi kailangang makipagkumpitensya.",
+    "Kung mayroon ka pang maraming kamag-anak, siguro ikaw ay isang sandwich.",
+    "May karapatan kang manahimik. Dahil anuman ang sabihin mo, palaging mukhang bobo.",
+    "Hindi ka pangit; kundi… may problema ka sa paningin.",
+    "Gusto kong ipaliwanag, pero wala akong lapis.",
+    "Parang ikaw ay isang software bug; palaging nasa lahat ng dako.",
+    "Mukha kang kakalabas lang sa slow cooker.",
+    "Parang ikaw ay isang spring. Wala namang silbi, pero kapag nahulog sa hagdang-bahig, napapatawa mo ako.",
+    "Ikaw ang dahilan kung bakit may babala sa label.",
+    "Gusto kong magbiro tungkol sa iyong mukha, pero mukhang sobrang malupit.",
+    "Parang ikaw ay isang software crash; palaging nangyayari nang hindi inaasahan at hindi kailanman tinatanggap."
+}
+
+for _, line in ipairs(roastLinesPH) do
+    TabRoastFilipino:AddButton({ Name = line, Callback = function() sendChatMessage(line) end })
+end
+
+-- Rizz Lines in Malay
+local rizzLinesMS = {
+    "Adakah kamu seorang penyihir? Kerana setiap kali aku melihatmu, semua orang hilang.",
+    "Adakah kamu mempunyai peta? Kerana aku tersesat dalam pandanganmu.",
+    "Adakah nama kamu Google? Kerana kamu mempunyai segala yang aku cari.",
+    "Adakah kamu percaya cinta pada pandangan pertama, atau aku perlu berjalan lagi?",
+    "Maaf, aku rasa kamu telah menjatuhkan sesuatu: daguku!",
+    "Adakah kamu Wi-Fi? Kerana aku merasakan sambungan.",
+    "Jika kecantikan adalah masa, kamu adalah keabadian.",
+    "Adakah kamu tempat letak kereta? Kerana ada 'denda' di mana-mana.",
+    "Jika kamu sayuran, kamu pasti timun yang cantik!",
+    "Adakah ayahmu seorang petinju? Kerana kamu adalah tumbukan yang kuat!",
+    "Jika kamu buah, kamu pasti nanas yang cantik.",
+    "Adakah kamu orang Perancis? Kerana aku jatuh cinta padamu.",
+    "Kamu pasti penat, kerana aku memikirkanmu sepanjang hari.",
+    "Jika pandangan boleh membunuh, kamu adalah senjata pemusnah besar.",
+    "Adakah kamu mempunyai plaster? Kerana aku jatuh dan mencederakan lututku.",
+    "Bolehkah aku mengikutimu pulang? Kerana ibu bapa saya selalu berkata untuk mengikuti impian saya.",
+    "Adakah kamu seorang pengembara masa? Kerana aku melihatmu di masa depan.",
+    "Adakah ia panas di sini? Atau hanya kamu yang panas?",
+    "Nampaknya tanganmu berat. Bolehkah aku membantu membawanya?",
+    "Kamu seperti seorang penyihir. Kerana setiap kali aku melihatmu, semua orang hilang.",
+    "Adakah ada lapangan terbang di sini? Atau hatiku terbang?",
+    "Bolehkah aku meminjam satu ciuman? Aku berjanji untuk mengembalikannya.",
+    "Jika kamu satu perkataan dalam halaman, kamu adalah nota kaki.",
+    "Adakah kamu terbakar oleh matahari? Atau adakah kamu sentiasa seseksikan ini?",
+    "Adakah kamu seorang malaikat? Kerana syurga merindukanmu.",
+    "Adakah kamu tahu ada Wi-Fi di sini? Kerana aku merasakan sambungan."
+}
+
+for _, line in ipairs(rizzLinesMS) do
+    TabRizzMalay:AddButton({ Name = line, Callback = function() sendChatMessage(line) end })
+end
+
+-- Roast Lines in Malay
+local roastLinesMS = {
+    "Aku mungkin setuju denganmu, tetapi dengan begitu kita berdua salah.",
+    "Kamu seperti pembaruan perangkat lunak. Setiap kali aku melihatmu, aku berpikir, 'Tidak sekarang.'",
+    "Aku ingin memanggilmu artikel, tetapi itu berarti kamu punya kegunaan.",
+    "Kamu adalah bukti bahwa evolusi membuat kesalahan.",
+    "Aku ingin menjelaskan, tetapi aku lupa kamus bahasa Inggris di Dingbat.",
+    "Kamu adalah alasan Tuhan menciptakan jari tengah.",
+    "Kamu membawa kebahagiaan bagi semua orang… hanya ketika kamu meninggalkan ruangan.",
+    "Jika lelucon adalah obat terbaik, maka wajahmu akan menyembuhkan dunia.",
+    "Kamu tidak bodoh; hanya saja kamu tidak beruntung saat berpikir.",
+    "Jika aku punya 1 dolar setiap kali melihat orang yang mengganggu seperti kamu, aku pasti sudah bangkrut.",
+    "Aku ingin memanggilmu bodoh, tetapi itu akan merendahkan semua orang bodoh.",
+    "Kamu seperti awan. Ketika kamu menghilang, hari akan menjadi cerah.",
+    "Kamu adalah orang yang mendapatkan penghargaan tanpa harus berkompetisi.",
+    "Jika kamu memiliki lebih banyak hubungan darah, kamu mungkin akan menjadi sandwich.",
+    "Kamu berhak untuk diam. Karena tidak peduli apa yang kamu katakan, itu selalu terdengar bodoh.",
+    "Kamu tidak jelek; hanya saja… kamu mengalami masalah dengan penglihatan.",
+    "Aku ingin menjelaskan, tetapi aku tidak punya pensil.",
+    "Kamu seperti kesalahan perangkat lunak; selalu muncul di mana-mana.",
+    "Kamu terlihat seperti baru keluar dari panci memasak lambat.",
+    "Kamu seperti pegas. Tidak banyak manfaatnya, tetapi saat jatuh dari tangga, itu membuatku tersenyum.",
+    "Kamu adalah alasan ada label peringatan.",
+    "Aku ingin bercanda tentang wajahmu, tetapi itu akan terlalu kejam.",
+    "Kamu seperti kecelakaan perangkat lunak; selalu terjadi secara tak terduga dan tidak pernah disambut."
+}
+
+for _, line in ipairs(roastLinesMS) do
+    TabRoastMalay:AddButton({ Name = line, Callback = function() sendChatMessage(line) end })
+end
